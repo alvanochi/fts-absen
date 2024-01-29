@@ -20,13 +20,15 @@ use Yajra\Datatables\Datatables;
 use App\Http\Helper\ResponseBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
+// protected $connection = 'second_db';
+
 class AkademikController extends Controller
 { 
     public function dataMhs(Request $request){
       try {
         $filterField = $request->input('filter');
         $filterValue = $request->input('filterValue');
-        $data = DB::table('pmb_registration as a') 
+        $data = DB::connection('second_db')->table('pmb_registration as a') 
         ->join('pmb_candidate as c', 'c.registration_no', '=', 'a.registration_no')
         // ->join('pmb_provinsi as d', 'd.id', '=', 'c.prov_code')
         // ->join('pmb_desa as e', 'e.id', '=', 'c.desa_code')
@@ -85,6 +87,49 @@ class AkademikController extends Controller
         ->filterColumn('address', function ($query, $keyword) {
             $query->whereRaw("c.address like ?", ["%$keyword%"]);
         })
+        ->make(true);
+
+      } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+      }
+    } 
+
+
+    public function dataDosen(Request $request){
+      try {
+        $filterField = $request->input('filter');
+        $filterValue = $request->input('filterValue');
+        $data = DB::connection('second_db')->table('pmb_registration as a') 
+        ->join('pmb_candidate as c', 'c.registration_no', '=', 'a.registration_no')
+        // ->join('pmb_provinsi as d', 'd.id', '=', 'c.prov_code')
+        // ->join('pmb_desa as e', 'e.id', '=', 'c.desa_code')
+        // ->join('pmb_kabupaten as f', 'f.id', '=', 'c.kabkot_code')
+        // ->join('pmb_kecamatan as h', 'h.id', '=', 'c.kec_code')
+        ->join('siak_department as g', 'g.code', '=', 'a.department_code')
+        ->select(
+            'c.registration_no',
+            'c.name as nama_mahasiswa',
+            'c.student_code as npm',
+            'c.sex',
+            'g.name as prodi', 
+            'c.mobile_phone',
+            'c.address'
+        )
+        ->where('c.student_code', '!=', '');
+        // $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'c.student_code', $request->input('orderValue') ? $request>
+        if ($filterField && $filterValue) {
+            foreach ($filterField as $key => $value) {
+                if ($filterField[$key] != null || $filterValue[$key] != null) {
+                    $data->where($value, '=', $filterValue[$key]);
+                }
+            }
+        } 
+        $data->get();
+
+
+        return Datatables::of($data)
+        ->addIndexColumn()
+         
         ->make(true);
 
       } catch (\Exception $e) {

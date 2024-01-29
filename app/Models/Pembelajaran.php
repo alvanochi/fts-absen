@@ -33,6 +33,16 @@ class Pembelajaran extends Model
             $query->whereNull('pembelajaran.deleted_at');
         });
     }
+
+    public function dosen()
+    {
+        return $this->belongsTo(Simpeg_Pegawai::class, 'nik_dosen', 'nip');
+    }
+
+    // public function markul()
+    // {
+    //     return $this->belongsTo(Pembelajaran::class, 'id_pembelajaran', 'id');
+    // }
   
     public static function getTableColumns()
     {

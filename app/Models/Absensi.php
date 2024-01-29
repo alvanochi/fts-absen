@@ -29,6 +29,16 @@ class Absensi extends Model
             $query->whereNull('absensi_mhs.deleted_at');
         });
     }
+
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Pmb_Candidate::class, 'npm', 'student_code');
+    }
+
+    public function pembelajaran()
+    {
+        return $this->belongsTo(Pembelajaran::class, 'id_pembelajaran', 'id');
+    }
   
     public static function getTableColumns()
     {
