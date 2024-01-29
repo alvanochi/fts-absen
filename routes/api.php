@@ -22,6 +22,7 @@ Route::post('/login', 'Api\AuthController@authenticate');
 Route::post('/register', 'Api\AuthController@register');
 
 Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
+Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
 
 Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
 Route::post('/absensi/scan-qr', 'Api\AbsensiController@scanQr'); 
@@ -35,7 +36,7 @@ Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('/refresh', 'Api\AuthController@refresh');  
 
 
-    Route::get('/pembelajaran', 'Api\PembelajaranController@index');   
+     
     Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');  
     Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');  
 
