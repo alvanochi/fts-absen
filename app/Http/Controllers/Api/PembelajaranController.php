@@ -33,7 +33,7 @@ class PembelajaranController extends Controller
             // 'qrcode',
             'token',
             'deleted_at' 
-        ])->with('dosen'); 
+        ])->with('dosen', 'matkul'); 
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {

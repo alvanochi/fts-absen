@@ -39,10 +39,10 @@ class Pembelajaran extends Model
         return $this->belongsTo(Simpeg_Pegawai::class, 'nik_dosen', 'nip');
     }
 
-    // public function markul()
-    // {
-    //     return $this->belongsTo(Pembelajaran::class, 'id_pembelajaran', 'id');
-    // }
+    public function matkul()
+    {
+        return $this->belongsTo(Siak_Course::class, 'id_matkul', 'code');
+    }
   
     public static function getTableColumns()
     {
