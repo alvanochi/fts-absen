@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 29 Jan 2024 pada 15.38
+-- Waktu pembuatan: 29 Jan 2024 pada 20.16
 -- Versi server: 10.4.21-MariaDB
 -- Versi PHP: 7.4.29
 
@@ -106,7 +106,7 @@ CREATE TABLE `password_resets` (
 CREATE TABLE `pembelajaran` (
   `id` int(11) NOT NULL,
   `nik_dosen` varchar(100) NOT NULL,
-  `id_matkul` int(11) NOT NULL,
+  `id_matkul` varchar(50) NOT NULL,
   `pertemuan` varchar(255) NOT NULL,
   `kelas` varchar(255) NOT NULL,
   `status_kelas` int(11) NOT NULL COMMENT '1: online, 0:offline',
@@ -122,8 +122,8 @@ CREATE TABLE `pembelajaran` (
 --
 
 INSERT INTO `pembelajaran` (`id`, `nik_dosen`, `id_matkul`, `pertemuan`, `kelas`, `status_kelas`, `qrcode`, `token`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, '1', 1, '1', 'regular-a', 0, NULL, 'FTSwFemzuQW90UGvpOm854G5ZINKpsEHsx4XdiAhW9P', '2024-01-24 11:04:06', '2024-01-24 18:04:06', NULL),
-(2, '1', 2, '4', 'regular-b', 1, NULL, 'FTSaBwBFTEG6y0tJUg8WnhtQxUJU6jlBoMcA4DuBlNP', '2024-01-24 12:40:17', '2024-01-24 19:40:17', NULL);
+(1, '410100569', 'TIF222', '1', 'regular-a', 0, NULL, 'FTSwFemzuQW90UGvpOm854G5ZINKpsEHsx4XdiAhW9P', '2024-01-29 19:13:16', '2024-01-24 18:04:06', NULL),
+(2, '410100569', 'TIF222', '4', 'regular-b', 1, NULL, 'FTSaBwBFTEG6y0tJUg8WnhtQxUJU6jlBoMcA4DuBlNP', '2024-01-29 19:13:24', '2024-01-24 19:40:17', NULL);
 
 -- --------------------------------------------------------
 
