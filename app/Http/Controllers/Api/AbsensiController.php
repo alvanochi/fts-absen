@@ -30,7 +30,7 @@ class AbsensiController extends Controller
             'npm',
             'status_absen',  
             'deleted_at' 
-        ])->with('mahasiswa', 'pembelajaran.dosen');  
+        ])->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {
