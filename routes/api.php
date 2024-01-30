@@ -27,6 +27,7 @@ Route::get('/pembelajaran', 'Api\PembelajaranController@index');
 Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
 
 Route::get('/absensi', 'Api\AbsensiController@index');   
+Route::post('/absensi/store', 'Api\AbsensiController@store');  
 Route::post('/absensi/scan-qr', 'Api\AbsensiController@scanQr'); 
 Route::get('/absensi/show-qr', 'Api\AbsensiController@showQr'); 
 Route::get('/absensi/download-qr', 'Api\AbsensiController@downloadQr'); 
@@ -43,7 +44,7 @@ Route::group(['middleware' => ['jwt.verify']], function() {
     Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');  
 
     
-    Route::post('/absensi/store', 'Api\AbsensiController@store');  
+    
     Route::post('/absensi/update/{id}', 'Api\AbsensiController@update');  
     Route::delete('/absensi/delete/{id}', 'Api\AbsensiController@delete');  
 });
