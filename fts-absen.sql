@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 29 Jan 2024 pada 20.16
+-- Waktu pembuatan: 02 Feb 2024 pada 21.42
 -- Versi server: 10.4.21-MariaDB
 -- Versi PHP: 7.4.29
 
@@ -32,20 +32,11 @@ CREATE TABLE `absensi_mhs` (
   `id_pembelajaran` int(11) NOT NULL,
   `npm` varchar(255) NOT NULL,
   `status_absen` int(11) NOT NULL COMMENT '0:alfa, 1:masuk, 2:sakit',
+  `coordinate_absen` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data untuk tabel `absensi_mhs`
---
-
-INSERT INTO `absensi_mhs` (`id`, `id_pembelajaran`, `npm`, `status_absen`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, '161105150542', 0, '2024-01-24 11:28:51', '2024-01-24 18:28:51', NULL),
-(2, 1, '161105150541', 0, '2024-01-24 12:02:24', '2024-01-24 19:02:24', NULL),
-(3, 1, '161105150531', 0, '2024-01-24 12:02:49', '2024-01-24 19:02:49', NULL),
-(4, 1, '161105150521', 0, '2024-01-24 12:03:44', '2024-01-24 19:03:44', NULL);
 
 -- --------------------------------------------------------
 
@@ -122,8 +113,9 @@ CREATE TABLE `pembelajaran` (
 --
 
 INSERT INTO `pembelajaran` (`id`, `nik_dosen`, `id_matkul`, `pertemuan`, `kelas`, `status_kelas`, `qrcode`, `token`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, '410100569', 'TIF222', '1', 'regular-a', 0, NULL, 'FTSwFemzuQW90UGvpOm854G5ZINKpsEHsx4XdiAhW9P', '2024-01-29 19:13:16', '2024-01-24 18:04:06', NULL),
-(2, '410100569', 'TIF222', '4', 'regular-b', 1, NULL, 'FTSaBwBFTEG6y0tJUg8WnhtQxUJU6jlBoMcA4DuBlNP', '2024-01-29 19:13:24', '2024-01-24 19:40:17', NULL);
+(1, '410100569', 'TIF304', '1', 'REGULER_B', 0, NULL, 'FTSwFemzuQW90UGvpOm854G5ZINKpsEHsx4XdiAhW9P', '2024-02-02 20:41:56', '2024-02-03 01:04:06', NULL),
+(2, '410100569', 'TIF304', '2', 'REGULER_B', 1, NULL, 'FTSaBwBFTEG6y0tJUg8WnhtQxUJU6jlBoMcA4DuBlNP', '2024-02-02 20:41:58', '2024-02-03 01:04:06', NULL),
+(4, '410100569', 'TIF304', '3', 'REGULER_B', 1, NULL, 'FTSIsZGVZpHRxhYtSmFrlHgYy7vod24Dh1UvZgdTSrR', '2024-02-02 20:41:26', '2024-02-02 23:51:35', NULL);
 
 -- --------------------------------------------------------
 
@@ -225,7 +217,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `absensi_mhs`
 --
 ALTER TABLE `absensi_mhs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `failed_jobs`
@@ -243,7 +235,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT untuk tabel `pembelajaran`
 --
 ALTER TABLE `pembelajaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `personal_access_tokens`
