@@ -8,6 +8,7 @@ use App\Models\Pmb_Candidate;
 use App\Models\Pmb_Desa;
 use App\Models\Pmb_Provinsi;
 use App\Models\Pmb_Registration;
+use App\Models\Siak_Class;
 use App\Models\Siak_Student;
 use App\Models\Siak_Student_Snapshot;
 
@@ -24,6 +25,98 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AkademikController extends Controller
 { 
+
+    public function unique_key($array,$keyname){
+
+      $new_array = array();
+      foreach($array as $key=>$value){
+    
+        if(!isset($new_array[$value[$keyname]])){
+          $new_array[$value[$keyname]] = $value;
+        }
+    
+      }
+      $new_array = array_values($new_array);
+      return $new_array;
+    }
+
+    public function dosenForMk(Request $request){
+      $thisMonth = DATE("n");
+      $thisYear = DATE("Y");
+      $previousyear = $thisYear -1;
+
+      $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+      if($thisMonth <= 6){   //GENAP
+        $stSemester = "GENAP";
+      }else{    //GASAL
+        $stSemester = "GASAL";
+      } 
+
+      $get = Http::get('https://skpi.uika-bogor.ac.id/restApi/index.php', [
+        'menu' => $request->menu ? $request->menu : 'matakuliah',
+        'academic_year' => $request->academic_year ? $request->academic_year : $thnAkademik,
+        'semester' => $request->semester ? $request->semester : $stSemester,
+        'code' => $request->code
+      ]);
+      $dataGet = json_decode($get->body(), true);
+
+      
+      if($dataGet['Status']['code'] == 200){   
+        $sorts = collect($dataGet['Data'])->sortByDesc('curr_code');
+        $result = $this->unique_key($sorts, 'name');   
+        
+        $ress = response()->json([
+            "Status" => $dataGet['Status'],
+            "message" => "Berhasil", 
+            "semester" => $stSemester, 
+            "nik" => $dataGet['nik'], 
+            "dosen" => $dataGet['dosen'], 
+            "Total" => $dataGet['Total'], 
+            "SKS" => $dataGet['SKS'], 
+            "Data" => $result, 
+        ], 200);
+      }else{
+        $ress = $dataGet;
+      }
+      return $ress; 
+    }
+
+    public function kelas(Request $request){
+      try {
+        $filterField = $request->input('filter');
+        $filterValue = $request->input('filterValue');
+
+        $data = Siak_Class::orderBy($request->input('orderField') ? $request->input('orderField') : 'name', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        if ($filterField && $filterValue) {
+            foreach ($filterField as $key => $value) {
+                if ($filterField[$key] != null || $filterValue[$key] != null) {
+                    $data->where($value, '=', $filterValue[$key]);
+                }
+            }
+        }
+        if ($request->input('dataTable') == true) {
+          return $dummyTable = Datatables::of($data)
+            ->addIndexColumn()  
+            ->make(true);
+        }else{
+          if($request->input('searchData')){
+            $data->where(function ($query) use ($request) {
+                foreach (Absensi::getTableColumns() as $value) {
+                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "%" . $request->input('searchData') . "%");
+                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "" . $request->input('searchData') . "%");
+                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "%" . $request->input('searchData') . "");
+                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  $request->input('searchData'));
+                }
+            });
+          }
+          $dummyAll = $data->get();
+          return ResponseBuilder::success(200, "success", $dummyAll);
+        }
+      } catch (\Exception $e) {
+        return ResponseBuilder::success(200, "error", null);
+      }
+    } 
+
     public function dataMhs(Request $request){
       try {
         $filterField = $request->input('filter');

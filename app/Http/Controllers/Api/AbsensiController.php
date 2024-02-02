@@ -29,6 +29,7 @@ class AbsensiController extends Controller
             'id_pembelajaran',
             'npm',
             'status_absen',  
+            'coordinate_absen',
             'deleted_at' 
         ])->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
         if ($filterField && $filterValue) {
@@ -94,6 +95,60 @@ class AbsensiController extends Controller
        
     } 
 
+    public function distance($latitudeOne='', $longitudeOne='', $latitudeTwo='', $longitudeTwo='',$distanceUnit ='',$round=false,$decimalPoints='')
+    {
+        if (empty($decimalPoints)) 
+        {
+            $decimalPoints = '1';
+        }
+        if (empty($distanceUnit)) {
+            $distanceUnit = 'KM';
+        }
+        $distanceUnit = strtolower($distanceUnit);
+        $pointDifference = $longitudeOne - $longitudeTwo;
+        $toSin = (sin(deg2rad($latitudeOne)) * sin(deg2rad($latitudeTwo))) + (cos(deg2rad($latitudeOne)) * cos(deg2rad($latitudeTwo)) * cos(deg2rad($pointDifference)));
+        $toAcos = acos($toSin);
+        $toRad2Deg = rad2deg($toAcos);
+
+        $toMiles  =  $toRad2Deg * 60 * 1.1515;
+        $toKilometers = $toMiles * 1.609344;
+        $toNauticalMiles = $toMiles * 0.8684;
+        $toMeters = $toKilometers * 1000;
+        $toFeets = $toMiles * 5280;
+        $toYards = $toFeets / 3;
+
+
+              switch (strtoupper($distanceUnit)) 
+              {
+                  case 'ML'://miles
+                         $toMiles  = ($round == true ? round($toMiles) : round($toMiles, $decimalPoints));
+                         return $toMiles;
+                      break;
+                  case 'KM'://Kilometers
+                        $toKilometers  = ($round == true ? round($toKilometers) : round($toKilometers, $decimalPoints));
+                        return $toKilometers;
+                      break;
+                  case 'MT'://Meters
+                        $toMeters  = ($round == true ? round($toMeters) : round($toMeters, $decimalPoints));
+                        return $toMeters;
+                      break;
+                  case 'FT'://feets
+                        $toFeets  = ($round == true ? round($toFeets) : round($toFeets, $decimalPoints));
+                        return $toFeets;
+                      break;
+                  case 'YD'://yards
+                        $toYards  = ($round == true ? round($toYards) : round($toYards, $decimalPoints));
+                        return $toYards;
+                      break;
+                  case 'NM'://Nautical miles
+                        $toNauticalMiles  = ($round == true ? round($toNauticalMiles) : round($toNauticalMiles, $decimalPoints));
+                        return $toNauticalMiles;
+                      break;
+              }
+
+
+    }
+
     public function scanQr(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
@@ -105,7 +160,31 @@ class AbsensiController extends Controller
             return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
         }
         
-        
+        // FROM
+        $coords = explode(",", $coordinate); 
+        $lat1 = $coords[0];
+        $lon1 = $coords[1];
+
+        // TO UIKA
+        $lat2 = "-6.559638321828133";
+        $lon2 = "106.7933585877713";
+
+        $countRadius = $this->distance($lat1, $lon1, $lat2, $lon2, 'FT', true, 105);
+        if($countRadius < 105)
+        {
+          $stPosisi = true;
+        }
+        else
+        {
+          $stPosisi = false;
+        }
+        // return response()->json([
+        //     "status" => 200,
+        //     "message" => "Berhasil",  
+        //     "hasil" => $countRadius,
+        //     "data" => $monitoredArea[0], 
+        // ], 200); 
+
         $data = Pembelajaran::where('token', $token)->first();
         if (isset($data)) { 
             $time = time();
@@ -124,13 +203,19 @@ class AbsensiController extends Controller
                     $absensi['id_pembelajaran'] = $data->id;
                     $absensi['npm'] = $npm;
                     $absensi['status_absen'] = $st_absen ? $st_absen : 0;
-                    $dummyAbsen = Absensi::create($absensi);
-                    if ($dummyAbsen) {
-                        $ress = ResponseBuilder::success(200, "success", $dummyAbsen);
-                    } else {
-                        $ress = ResponseBuilder::success(200, "error", $dummyAbsen);
+                    $absensi['coordinate_absen'] = $coordinate;
+                    if($data->status_kelas == 0 && $stPosisi == false){       // Jika Kelas Offline dan Tidak Masuk radius 
+                        return ResponseBuilder::success(200, "Anda diluar lokasi yang di tentukan", null); 
+                    }else{
+                        $dummyAbsen = Absensi::create($absensi);
+                        if ($dummyAbsen) {
+                            $ress = ResponseBuilder::success(200, "success", $dummyAbsen);
+                        } else {
+                            $ress = ResponseBuilder::success(200, "error", $dummyAbsen);
+                        }
+                        return $ress;  
                     }
-                    return $ress;  
+                    
                 }
             } else {  
                 return ResponseBuilder::success(200, "QR telah melewati batas waktu", null);  

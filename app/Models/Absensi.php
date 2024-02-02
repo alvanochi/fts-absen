@@ -17,6 +17,7 @@ class Absensi extends Model
         'id_pembelajaran',
         'npm',
         'status_absen',  
+        'coordinate_absen',
         'deleted_at' 
     ];
  

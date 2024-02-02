@@ -36,6 +36,9 @@ Route::get('/absensi/download-qr', 'Api\AbsensiController@downloadQr');
 Route::post('/absensi/update/{id}', 'Api\AbsensiController@update');  
 Route::delete('/absensi/delete/{id}', 'Api\AbsensiController@delete');  
 
+Route::get('/dosen-for-mk', 'Api\AkademikController@dosenForMk');   
+Route::get('/kelas', 'Api\AkademikController@kelas');   
+
 Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('/logout', 'Api\AuthController@logout');
     Route::get('/get_user', 'Api\AuthController@get_user');  

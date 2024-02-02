@@ -41,7 +41,8 @@ class PembelajaranController extends Controller
                 }
             }
         }
-
+        $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($data)
             ->addIndexColumn()  
@@ -51,8 +52,7 @@ class PembelajaranController extends Controller
             //     );
             // })
             ->make(true);
-        }else{
-            $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        }else{ 
             if($request->input('searchData')){
                 $data->where(function ($query) use ($request) {
                     foreach (Pembelajaran::getTableColumns() as $value) {
@@ -89,7 +89,31 @@ class PembelajaranController extends Controller
             }
                 
         }    
-        
+
+
+        $thisYear = DATE('Y');
+        if(!$request->input('nik_dosen') || !$request->input('id_matkul')){
+            return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
+        } 
+
+        $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
+        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))->where('id_matkul', $request->input('id_matkul'));
+        $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
+        $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
+        $prosesPertemuan = $prosesPertemuan + 1;
+        // $prosesPertemuan = $prosesPertemuan->get();
+        if($prosesPertemuan == 15){
+            $prosesPertemuan = 1;
+        }
+        $result['pertemuan'] = $prosesPertemuan;
+
+        // return response()->json([
+        //     "status" => 200,
+        //     "message" => "Berhasil", 
+        //     "tahun" => $thisYear,
+        //     "data" => $prosesPertemuan,
+        //     "res" => $result, 
+        // ], 200);
         
         $time = time();
         $strTime = strtotime($time);
