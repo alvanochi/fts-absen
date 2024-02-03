@@ -84,36 +84,35 @@ class PembelajaranController extends Controller
                             ->where('id_matkul', $request->input('id_matkul'))
                             ->where('kelas', $request->input('kelas'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
-        $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
-        // $datePembelajaran = "2025-03-02T20:41:26.000000Z";
+
+        if($prosesPertemuan->get()->toArray()){
+
+            $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
+            $tglPenetapan = ''.$nextYear.'-02-01'; 
+            $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
+            $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
+            if ($convertTgl2 < $convertTgl1) {
+                // $prosesPertemuan = 1;
+            }else{
+                $prosesPertemuan = 1;
+            } 
+        } 
 
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $prosesPertemuan = $prosesPertemuan + 1;
         // $prosesPertemuan = $prosesPertemuan->get();
 
-        $tglPenetapan = ''.$nextYear.'-02-01'; 
         if($prosesPertemuan == 15){
             $prosesPertemuan = 1;
         }
-
-        $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
-        $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
-        if ($convertTgl2 < $convertTgl1) {
-            // $prosesPertemuan = 1;
-        }else{
-            $prosesPertemuan = 1;
-        } 
+        
+        
         $result['pertemuan'] = $prosesPertemuan;
 
         return response()->json([
             "status" => 200,
             "message" => "Berhasil", 
-            "data" => array( 
-                "date-pembelajaran" => $datePembelajaran,
-                "date-system" => $tglPenetapan,
-                "strdate-pembelajaran" => $convertTgl2,
-                "strdate-system" => $convertTgl1,
-                // "test" => $test,
+            "data" => array(  
                 "pertemuan-ke" => $prosesPertemuan
             )
         ], 200);
