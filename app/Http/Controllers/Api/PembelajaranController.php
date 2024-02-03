@@ -113,7 +113,7 @@ class PembelajaranController extends Controller
             "status" => 200,
             "message" => "Berhasil", 
             "data" => array(  
-                "pertemuan-ke" => $prosesPertemuan
+                "pertemuan_ke" => $prosesPertemuan
             )
         ], 200);
 
