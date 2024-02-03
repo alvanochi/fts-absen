@@ -68,6 +68,37 @@ class PembelajaranController extends Controller
         }
     } 
 
+    public function cekPertemuan(Request $request)
+    { 
+        date_default_timezone_set('Asia/Jakarta'); 
+        $result = []; 
+        $thisYear = DATE('Y');
+        if(!$request->input('nik_dosen') || !$request->input('id_matkul')){
+            return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
+        } 
+
+        $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
+        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))->where('id_matkul', $request->input('id_matkul'));
+        $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
+        $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
+        $prosesPertemuan = $prosesPertemuan + 1;
+        // $prosesPertemuan = $prosesPertemuan->get();
+        if($prosesPertemuan == 15){
+            $prosesPertemuan = 1;
+        }
+        $result['pertemuan'] = $prosesPertemuan;
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Berhasil", 
+            "data" => array(
+                "pertemuan-ke" => $prosesPertemuan
+            )
+        ], 200);
+
+        // return ResponseBuilder::success(200, "success", $prosesPertemuan); 
+    }
+
     public function store(Request $request)
     {  
         date_default_timezone_set('Asia/Jakarta'); 
@@ -105,7 +136,7 @@ class PembelajaranController extends Controller
         if($prosesPertemuan == 15){
             $prosesPertemuan = 1;
         }
-        $result['pertemuan'] = $prosesPertemuan;
+        // $result['pertemuan'] = $prosesPertemuan;
 
         // return response()->json([
         //     "status" => 200,

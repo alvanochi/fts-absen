@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', 'Api\AuthController@authenticate');
 Route::post('/register', 'Api\AuthController@register');
 
+Route::get('/pembelajaran/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');  
 Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
 Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
 Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');  
