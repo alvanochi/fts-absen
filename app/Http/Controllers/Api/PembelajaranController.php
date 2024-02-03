@@ -71,27 +71,49 @@ class PembelajaranController extends Controller
     public function cekPertemuan(Request $request)
     { 
         date_default_timezone_set('Asia/Jakarta'); 
-        $result = []; 
-        $thisYear = DATE('Y');
-        if(!$request->input('nik_dosen') || !$request->input('id_matkul')){
+        $result = [];  
+        $thisMonth = DATE('m');
+        $thisYear = DATE('Y'); 
+        $nextYear = date('Y', strtotime('+1 Year'));
+        if(!$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
 
         $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))->where('id_matkul', $request->input('id_matkul'));
+        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
+                            ->where('id_matkul', $request->input('id_matkul'))
+                            ->where('kelas', $request->input('kelas'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
+        $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
+        // $datePembelajaran = "2025-03-02T20:41:26.000000Z";
+
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $prosesPertemuan = $prosesPertemuan + 1;
         // $prosesPertemuan = $prosesPertemuan->get();
+
+        $tglPenetapan = ''.$nextYear.'-02-01'; 
         if($prosesPertemuan == 15){
             $prosesPertemuan = 1;
         }
+
+        $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
+        $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
+        if ($convertTgl2 < $convertTgl1) {
+            // $prosesPertemuan = 1;
+        }else{
+            $prosesPertemuan = 1;
+        } 
         $result['pertemuan'] = $prosesPertemuan;
 
         return response()->json([
             "status" => 200,
             "message" => "Berhasil", 
-            "data" => array(
+            "data" => array( 
+                "date-pembelajaran" => $datePembelajaran,
+                "date-system" => $tglPenetapan,
+                "strdate-pembelajaran" => $convertTgl2,
+                "strdate-system" => $convertTgl1,
+                // "test" => $test,
                 "pertemuan-ke" => $prosesPertemuan
             )
         ], 200);
@@ -123,12 +145,14 @@ class PembelajaranController extends Controller
 
 
         $thisYear = DATE('Y');
-        if(!$request->input('nik_dosen') || !$request->input('id_matkul')){
+        if(!$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
 
         $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))->where('id_matkul', $request->input('id_matkul'));
+        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
+                            ->where('id_matkul', $request->input('id_matkul'))
+                            ->where('kelas', $request->input('kelas'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $prosesPertemuan = $prosesPertemuan + 1;
