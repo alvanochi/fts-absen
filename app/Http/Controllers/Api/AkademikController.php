@@ -63,7 +63,7 @@ class AkademikController extends Controller
       
       if($dataGet['Status']['code'] == 200){   
         $sorts = collect($dataGet['Data'])->sortByDesc('curr_code');
-        $result = $this->unique_key($sorts, 'name');   
+        // $result = $this->unique_key($sorts, 'name');   
         
         $ress = response()->json([
             "Status" => $dataGet['Status'],
@@ -73,7 +73,7 @@ class AkademikController extends Controller
             "dosen" => $dataGet['dosen'], 
             "Total" => $dataGet['Total'], 
             "SKS" => $dataGet['SKS'], 
-            "Data" => $result, 
+            "Data" => $sorts, 
         ], 200);
       }else{
         $ress = $dataGet;
