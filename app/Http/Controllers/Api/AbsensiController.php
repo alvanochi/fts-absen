@@ -166,10 +166,10 @@ class AbsensiController extends Controller
         $lon1 = $coords[1];
 
         // TO UIKA
-        // $lat2 = "-6.559638321828133";
-        // $lon2 = "106.7933585877713";
-        $lat2 = "-6.56157168370266";
-        $lon2 = "106.79061952492778";
+        $lat2 = "-6.559638321828133";
+        $lon2 = "106.7933585877713";
+        // $lat2 = "-6.56157168370266";
+        // $lon2 = "106.79061952492778";
 
         $countRadius = $this->distance($lat1, $lon1, $lat2, $lon2, 'FT', true, 105);
         if($countRadius < 105)
