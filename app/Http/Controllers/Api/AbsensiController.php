@@ -31,7 +31,22 @@ class AbsensiController extends Controller
             'status_absen',  
             'coordinate_absen',
             'deleted_at' 
-        ])->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
+        ])
+        // ->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
+        ->with([
+            'mahasiswa' => function ($query) {
+              $query->select('registration_no', 'name','student_code');
+            },
+            'pembelajaran' => function ($query) {
+              $query->select('id', 'nik_dosen','id_matkul', 'pertemuan', 'kelas', 'status_kelas', 'token');
+            },
+            'pembelajaran.dosen' => function ($query) {
+              $query->select('nip','nama', 'gelar_belakang');
+            },
+            'pembelajaran.matkul' => function ($query) {
+              $query->select('code', 'curr_code','name', 'credit', 'semester');
+            }
+          ]);
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {

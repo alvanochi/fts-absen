@@ -25,6 +25,11 @@ class Siak_Lecture extends Model
         return $this->belongsTo(Siak_Lecturer::class, 'lecturer_code', 'code');
     }
 
+    public function pembelajaran()
+    {
+        return $this->hasMany(Pembelajaran::class,  'id_matkul', 'course_code');
+    }
+
     public static function getTableColumns()
     {
         return DB::getSchemaBuilder()->getColumnListing('siak_lecture');

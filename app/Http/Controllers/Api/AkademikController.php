@@ -12,6 +12,10 @@ use App\Models\Siak_Class;
 use App\Models\Siak_Student;
 use App\Models\Siak_Student_Snapshot;
 use App\Models\Siak_Lecture;
+use App\Models\Pembelajaran;
+use App\Models\Absensi;
+
+
 
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -104,25 +108,20 @@ class AkademikController extends Controller
         } 
 
         $data = Siak_Lecture::select([
-            'siak_lecture.id',  
-            'siak_lecture.academic_year',
-            'siak_lecture.semester',
-            'siak_lecture.department_code', 
-            'siak_lecture.course_code',
-            'siak_lecture.curr_code',  
-            'siak_lecture.lecturer_code',
-            'siak_lecture.class',  
-            'siak_lecture.on_day',
-            'siak_lecture.from_time',
-            'siak_lecture.until_time', 
-            'siak_lecture.classroom',
-            // 'siak_course.name',
-            // 'siak_lecturer.name AS dosen',
-            // 'siak_course.credit'  
+            'id',  
+            'academic_year',
+            'semester',
+            'department_code', 
+            'course_code',
+            'curr_code',  
+            'lecturer_code',
+            'class',  
+            'on_day',
+            'from_time',
+            'until_time', 
+            'classroom', 
         ])
-        ->with('matkul', 'lecturer')
-        // ->join('siak_course', 'siak_lecture.course_code', 'siak_course.code')
-        // ->join('siak_lecturer', 'siak_lecture.lecturer_code', 'siak_lecturer.code')
+        ->with('matkul', 'lecturer') 
         ->where('siak_lecture.department_code', 'FT_TI') 
         ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
         // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
@@ -216,6 +215,225 @@ class AkademikController extends Controller
           ),
           "Data" => array() 
         ], 400);
+      }
+    }
+
+    public function listPertemuan(Request $request){
+      try {
+        $filterField = $request->input('filter');
+        $filterValue = $request->input('filterValue');
+
+        $menu = $request->input('menu');
+        $academic_year = $request->input('academic_year');
+        // $semester = $request->input('semester');
+        $code = $request->input('code'); 
+
+        $thisMonth = DATE("n");
+        $thisYear = DATE("Y");
+        $previousyear = $thisYear -1;
+
+        $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+        if($thisMonth <= 6){   //GENAP
+          $stSemester = "GENAP";
+        }else{    //GASAL
+          $stSemester = "GASAL";
+        } 
+
+        $data = Siak_Lecture::select([
+            'id',  
+            'academic_year',
+            'semester',
+            'department_code', 
+            'course_code',
+            'curr_code',  
+            'lecturer_code',
+            'class',  
+            'on_day',
+            'from_time',
+            'until_time', 
+            'classroom', 
+        ])
+        ->with('pembelajaran','matkul', 'lecturer') 
+        ->where('siak_lecture.department_code', 'FT_TI') 
+        ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+        // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        
+
+        if($academic_year){
+          $data = $data->where('academic_year', $academic_year);
+        }else{
+          $data = $data->where('academic_year', $thnAkademik);
+        }
+        // if($semester){
+        //   $data = $data->where('semester', $semester);
+        // }else{
+        //   $data = $data->where('semester', $stSemester);
+        // } 
+        if($code){
+          $data = $data->where('lecturer_code', $code);
+        }else{
+          return ResponseBuilder::success(200, "error, code dosen harus di input", null); 
+        }
+
+        if ($filterField && $filterValue) {
+            foreach ($filterField as $key => $value) {
+                if ($filterField[$key] != null || $filterValue[$key] != null) {
+                    $data->where($value, '=', $filterValue[$key]);
+                }
+            }
+        }
+
+        
+        $dummy = $data->get()->toArray(); 
+
+        $label = array();
+        foreach ($dummy as $key) {
+
+          $pertemuan = array(); 
+          $pertemuan_statusKelas = array(); 
+          // foreach ($key['pembelajaran'] as $val) {
+          if(count($key['pembelajaran']) > 0){
+            for ($i = 0; $i < 14; $i++) {
+              if(!empty($key['pembelajaran'][$i])){ 
+                array_push($pertemuan, 1);
+                if($key['pembelajaran'][$i]['status_kelas'] == 1){
+                  $stKelas = 'Online';
+                }else{
+                  $stKelas = 'Offline';
+                }
+                array_push($pertemuan_statusKelas, $stKelas);
+              }else{
+                array_push($pertemuan, 0);
+                array_push($pertemuan_statusKelas, null);
+              } 
+            }
+            $countPersen = (count($key['pembelajaran']) / 14) * 100;
+            $persen = round($countPersen, 2). '%';
+          } else {
+            $persen = "0%";
+          }
+        
+
+          $hasilModif[] = array( 
+            "course_code" => $key['course_code'],
+            "curr_code" => $key['curr_code'],
+            "name_matkul" => $key['matkul']['name'],
+            "sks" => $key['matkul']['credit'],
+            "class" => $key['class'],
+            "day" => $key['on_day'],
+            "from_time" => $key['from_time'],
+            "until_time" => $key['until_time'],
+            "class_room" => $key['classroom'],
+            "pertemuan" => $pertemuan,
+            "pertemuan_statusKelas" => $pertemuan_statusKelas,
+            "persentase" => $persen
+          );
+        }
+
+        // return response()->json([
+        //   "real" => $dummy,
+        //   "data" => $hasilModif
+        // ]);
+        
+        if ($request->input('dataTable') == true) {
+          return $dummyTable = Datatables::of($hasilModif)
+            ->addIndexColumn()  
+            ->make(true);
+        }else{ 
+          
+          return ResponseBuilder::success(200, "success", $hasilModif);
+        }
+      } catch (\Exception $e) {
+        return ResponseBuilder::success(200, "error", null); 
+      }
+    }
+
+    public function listAbsenMatkul(Request $request){
+      try {
+        $id_matkul = $request->input('id_matkul');
+        $kelas = $request->input('kelas');
+        if(!$id_matkul && !$kelas){
+          return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null); 
+        }
+
+        $dataPembelajaran = Pembelajaran::select([
+          'id',  
+          'nik_dosen',
+          'id_matkul',
+          'pertemuan', 
+          'kelas',
+          'status_kelas',  
+          'token',
+          'deleted_at' 
+        ])
+        ->with([
+        'matkul' => function ($query) {
+          $query->select('code', 'curr_code','name', 'credit', 'semester');
+        },
+        'absen' => function ($query) {
+          $query->select('id_pembelajaran','npm', 'status_absen');
+        }, 
+        'absen.mahasiswa' => function ($query) {
+            $query->select('registration_no', 'name','student_code');
+        }]); 
+        if($id_matkul){
+          $dataPembelajaran = $dataPembelajaran->where('id_matkul', $id_matkul);
+        }
+        if($kelas){
+          $dataPembelajaran = $dataPembelajaran->where('kelas', $kelas);
+        }
+        $dataPembelajaran = $dataPembelajaran->get()->toArray(); 
+
+
+        $dataAbsen = Absensi::select([
+          'id',  
+          'id_pembelajaran',
+          'npm',
+          'status_absen',  
+          'coordinate_absen',
+          'deleted_at' 
+        ])
+        // ->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
+        ->with([
+          'mahasiswa' => function ($query) {
+            $query->select('registration_no', 'name','student_code');
+          },
+          // 'pembelajaran' => function ($query) {
+          //   $query->select('id', 'nik_dosen','id_matkul', 'pertemuan', 'kelas', 'status_kelas', 'token');
+          // },
+          // 'pembelajaran.dosen' => function ($query) {
+          //   $query->select('nip','nama', 'gelar_belakang');
+          // },
+          // 'pembelajaran.matkul' => function ($query) {
+          //   $query->select('code', 'curr_code','name', 'credit', 'semester');
+          // }
+        ]);
+        $dataAbsen = $dataAbsen->get()->toArray(); 
+        
+        // $dummy = array();
+        // $datass = collect($dataGet['Data'])->pluck('curr_code');
+        $result = $this->unique_key($dataAbsen, 'npm');   
+
+        return response()->json([
+          "dataPembelajaran" => $dataPembelajaran,
+          "dataAbsen" => $dataAbsen,
+          "data" => $result
+        ]);
+
+        // if ($request->input('dataTable') == true) {
+        //     return $dummyTable = Datatables::of($hasilModif)
+        //     ->addIndexColumn()  
+        //     // ->addColumn('qr_code', function ($row) {
+        //     //     return QrCode::generate(
+        //     //         $row['token'],
+        //     //     );
+        //     // })
+        //     ->make(true);
+        // }else{  
+        //     return ResponseBuilder::success(200, "success", $hasilModif);
+        // }
+      } catch (\Exception $e) {
+        return ResponseBuilder::success(200, "error", null); 
       }
     }
 

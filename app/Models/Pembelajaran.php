@@ -43,6 +43,11 @@ class Pembelajaran extends Model
     {
         return $this->belongsTo(Siak_Course::class, 'id_matkul', 'code');
     }
+
+    public function absen()
+    {
+        return $this->hasMany(Absensi::class,  'id_pembelajaran', 'id');
+    }
   
     public static function getTableColumns()
     {

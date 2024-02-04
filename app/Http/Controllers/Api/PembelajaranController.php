@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Arr;
 
 use App\Models\Pembelajaran;
 
@@ -29,8 +30,7 @@ class PembelajaranController extends Controller
             'id_matkul',
             'pertemuan', 
             'kelas',
-            'status_kelas', 
-            // 'qrcode',
+            'status_kelas',  
             'token',
             'deleted_at' 
         ])->with('dosen', 'matkul'); 
@@ -66,7 +66,7 @@ class PembelajaranController extends Controller
             $dummyAll = $data->get();
             return ResponseBuilder::success(200, "success", $dummyAll);
         }
-    } 
+    }  
 
     public function cekPertemuan(Request $request)
     { 

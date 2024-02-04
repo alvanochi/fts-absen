@@ -40,6 +40,12 @@ class Absensi extends Model
     {
         return $this->belongsTo(Pembelajaran::class, 'id_pembelajaran', 'id');
     }
+
+    // public function pembelajaran()
+    // {
+    //     return $this->hasMany(Pembelajaran::class, 'id', 'id_pembelajaran');
+    // }
+    
   
     public static function getTableColumns()
     {

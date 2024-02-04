@@ -21,10 +21,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', 'Api\AuthController@authenticate');
 Route::post('/register', 'Api\AuthController@register');
 
+
+
 Route::get('/pembelajaran/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');  
 Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
 Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
-Route::get('/pembelajaran/list-pertemuan', 'Api\PembelajaranController@listPertemuan');  
 Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');  
 Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');  
 
@@ -42,6 +43,9 @@ Route::post('/absensi/update/{id}', 'Api\AbsensiController@update');
 Route::delete('/absensi/delete/{id}', 'Api\AbsensiController@delete');  
 
 // Route::get('/dosen-for-mk', 'Api\AkademikController@dosenForMk');   
+Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
+Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
+
 Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
 Route::get('/kelas', 'Api\AkademikController@kelas');   
 
