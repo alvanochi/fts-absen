@@ -14,6 +14,7 @@ use App\Models\Siak_Student_Snapshot;
 use App\Models\Siak_Lecture;
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
+use App\Models\Siak_Course;
 
 
 
@@ -416,6 +417,7 @@ class AkademikController extends Controller
           $stAbsen = array();
           foreach ($val as $val2) {
             $npmData = $val2['npm'];  
+            // $npmData = $val2['npm'];  
             array_push($stAbsen, $val2['status_absen']);  
           }         
 
@@ -435,10 +437,31 @@ class AkademikController extends Controller
           array_push($dummy, array(
             "name_mhs" => $key,
             "npm" => $npmData, 
+            "npm" => $npmData, 
             "status_absen" => $stAbsenDeal,
             "persentase" => $persen
           ));
         } 
+
+        $dataMatkul = Siak_Course::select([
+          'siak_course.code',
+          'siak_course.curr_code',
+          'siak_course.credit',
+          'siak_course.semester',
+          'siak_lecture.academic_year',
+          'siak_lecture.class',
+          'siak_lecture.on_day',
+        ])
+        ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
+        ->where('code', $id_matkul)
+        ->where('siak_lecture.class', $kelas)
+        ->first()->toArray();
+
+        // return response()->json([
+        //   "matkul" => $dataMatkul,
+        //   "real" => $groupRes,
+        //   "data" => $dummy
+        // ]);
 
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($dummy)
@@ -448,9 +471,18 @@ class AkademikController extends Controller
             //         $row['token'],
             //     );
             // })
+            ->with([
+              'matkul' => $dataMatkul,
+            ])
             ->make(true);
         }else{  
-            return ResponseBuilder::success(200, "success", $dummy);
+            return response()->json([
+              "status" => 200,
+              "message" => "success",
+              "matkul" => $dataMatkul,
+              "data" => $dummy
+            ], 200);
+            // return ResponseBuilder::success(200, "success", $dummy);
         }
       } catch (\Exception $e) {
         return ResponseBuilder::success(200, "error", null); 

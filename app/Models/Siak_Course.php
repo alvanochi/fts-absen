@@ -13,7 +13,7 @@ class Siak_Course extends Model
     {
         parent::boot();
    
-    }
+    } 
 
     public static function getTableColumns()
     {
