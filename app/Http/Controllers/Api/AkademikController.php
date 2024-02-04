@@ -11,6 +11,7 @@ use App\Models\Pmb_Registration;
 use App\Models\Siak_Class;
 use App\Models\Siak_Student;
 use App\Models\Siak_Student_Snapshot;
+use App\Models\Siak_Lecture;
 
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -81,6 +82,127 @@ class AkademikController extends Controller
       return $ress; 
     }
 
+    public function dosenMk(Request $request){
+      try {
+        $filterField = $request->input('filter');
+        $filterValue = $request->input('filterValue');
+
+        $menu = $request->input('menu');
+        $academic_year = $request->input('academic_year');
+        $semester = $request->input('semester');
+        $code = $request->input('code');
+
+        $thisMonth = DATE("n");
+        $thisYear = DATE("Y");
+        $previousyear = $thisYear -1;
+
+        $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+        if($thisMonth <= 6){   //GENAP
+          $stSemester = "GENAP";
+        }else{    //GASAL
+          $stSemester = "GASAL";
+        } 
+
+        $data = Siak_Lecture::select([
+            'siak_lecture.id',  
+            'siak_lecture.academic_year',
+            'siak_lecture.semester',
+            'siak_lecture.department_code', 
+            'siak_lecture.course_code',
+            'siak_lecture.curr_code',  
+            'siak_lecture.lecturer_code',
+            'siak_lecture.class',  
+            'siak_lecture.on_day',
+            'siak_lecture.from_time',
+            'siak_lecture.until_time', 
+            'siak_lecture.classroom',
+            // 'siak_course.name',
+            // 'siak_lecturer.name AS dosen',
+            // 'siak_course.credit'  
+        ])
+        ->with('matkul', 'lecturer')
+        // ->join('siak_course', 'siak_lecture.course_code', 'siak_course.code')
+        // ->join('siak_lecturer', 'siak_lecture.lecturer_code', 'siak_lecturer.code')
+        ->where('siak_lecture.department_code', 'FT_TI') 
+        ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+        // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        
+
+        if($academic_year){
+          $data = $data->where('academic_year', $academic_year);
+        }else{
+          $data = $data->where('academic_year', $thnAkademik);
+        }
+        if($semester){
+          $data = $data->where('semester', $semester);
+        }else{
+          $data = $data->where('semester', $stSemester);
+        } 
+        if($code){
+          $data = $data->where('lecturer_code', $code);
+        }
+
+        if ($filterField && $filterValue) {
+            foreach ($filterField as $key => $value) {
+                if ($filterField[$key] != null || $filterValue[$key] != null) {
+                    $data->where($value, '=', $filterValue[$key]);
+                }
+            }
+        }
+        if ($request->input('dataTable') == true) {
+          return $dummyTable = Datatables::of($data)
+            ->addIndexColumn()  
+            ->addColumn('name', function ($row) {
+                return $row['matkul']['name'];
+            })
+            ->addColumn('credit', function ($row) {
+              return $row['matkul']['credit'];
+            })
+            ->addColumn('dosen', function ($row) {
+              return $row['lecturer']['name'];
+            })
+            ->make(true);
+        }else{
+          if($request->input('searchData')){
+            $data->where(function ($query) use ($request) {
+                foreach (Absensi::getTableColumns() as $value) {
+                    $query->orwhere('siak_lecture.' . $value, 'LIKE',  "%" . $request->input('searchData') . "%");
+                    $query->orwhere('siak_lecture.' . $value, 'LIKE',  "" . $request->input('searchData') . "%");
+                    $query->orwhere('siak_lecture.' . $value, 'LIKE',  "%" . $request->input('searchData') . "");
+                    $query->orwhere('siak_lecture.' . $value, 'LIKE',  $request->input('searchData'));
+                }
+            });
+          }
+          $dummyAll = $data->get()->toArray();
+
+          $sks = collect($dummyAll)->sum('matkul.credit');
+          return response()->json([
+            "Status" => array(
+              "success" => true,
+              "code" => 200,
+              "description" => "Request Valid"
+            ),
+            "nik" => $code, 
+            "dosen" => $dummyAll[0]['lecturer']['name'], 
+            "Total" => count($dummyAll), 
+            "SKS" => $sks,
+            "Data" => $dummyAll 
+          ]);
+          // return ResponseBuilder::success(200, "success", $dummyAll);
+        }
+      } catch (\Exception $e) {
+        // return ResponseBuilder::success(200, "error", null);
+        return response()->json([
+          "Status" => array(
+            "success" => true,
+            "code" => 400,
+            "description" => "Request Invalid"
+          ),
+          "Data" => array() 
+        ], 400);
+      }
+    }
+
     public function kelas(Request $request){
       try {
         $filterField = $request->input('filter');
@@ -102,10 +224,10 @@ class AkademikController extends Controller
           if($request->input('searchData')){
             $data->where(function ($query) use ($request) {
                 foreach (Absensi::getTableColumns() as $value) {
-                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "%" . $request->input('searchData') . "%");
-                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "" . $request->input('searchData') . "%");
-                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  "%" . $request->input('searchData') . "");
-                    $query->orwhere('absensi_mhs.' . $value, 'LIKE',  $request->input('searchData'));
+                    $query->orwhere('siak_class.' . $value, 'LIKE',  "%" . $request->input('searchData') . "%");
+                    $query->orwhere('siak_class.' . $value, 'LIKE',  "" . $request->input('searchData') . "%");
+                    $query->orwhere('siak_class.' . $value, 'LIKE',  "%" . $request->input('searchData') . "");
+                    $query->orwhere('siak_class.' . $value, 'LIKE',  $request->input('searchData'));
                 }
             });
           }
