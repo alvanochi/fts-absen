@@ -446,6 +446,7 @@ class AkademikController extends Controller
         $dataMatkul = Siak_Course::select([
           'siak_course.code',
           'siak_course.curr_code',
+          'siak_course.name',
           'siak_course.credit',
           'siak_course.semester',
           'siak_lecture.academic_year',
