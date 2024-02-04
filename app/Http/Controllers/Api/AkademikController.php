@@ -175,6 +175,21 @@ class AkademikController extends Controller
           }
           $dummyAll = $data->get()->toArray();
 
+          $label = array();
+          foreach ($dummyAll as $key) {
+            $label[] = array(
+              "course_code" => $key['course_code'],
+              "curr_code" => $key['curr_code'],
+              "name" => $key['matkul']['name'],
+              "sks" => $key['matkul']['credit'],
+              "class" => $key['class'],
+              "day" => $key['on_day'],
+              "from_time" => $key['from_time'],
+              "until_time" => $key['until_time'],
+              "class_room" => $key['classroom']
+            );
+          }
+
           $sks = collect($dummyAll)->sum('matkul.credit');
           return response()->json([
             "Status" => array(
@@ -186,7 +201,8 @@ class AkademikController extends Controller
             "dosen" => $dummyAll[0]['lecturer']['name'], 
             "Total" => count($dummyAll), 
             "SKS" => $sks,
-            "Data" => $dummyAll 
+            // "real" => $dummyAll ,
+            "Data" => $label 
           ]);
           // return ResponseBuilder::success(200, "success", $dummyAll);
         }
