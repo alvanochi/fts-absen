@@ -310,6 +310,10 @@ class AkademikController extends Controller
             $countPersen = (count($key['pembelajaran']) / 14) * 100;
             $persen = round($countPersen, 2). '%';
           } else {
+            for ($i = 0; $i < 14; $i++) {
+              array_push($pertemuan, 0);
+              array_push($pertemuan_statusKelas, null);
+            }
             $persen = "0%";
           }
         
@@ -356,69 +360,124 @@ class AkademikController extends Controller
           return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null); 
         }
 
-        $dataPembelajaran = Pembelajaran::select([
-          'id',  
-          'nik_dosen',
-          'id_matkul',
-          'pertemuan', 
-          'kelas',
-          'status_kelas',  
-          'token',
-          'deleted_at' 
-        ])
-        ->with([
-        'matkul' => function ($query) {
-          $query->select('code', 'curr_code','name', 'credit', 'semester');
-        },
-        'absen' => function ($query) {
-          $query->select('id_pembelajaran','npm', 'status_absen');
-        }, 
-        'absen.mahasiswa' => function ($query) {
-            $query->select('registration_no', 'name','student_code');
-        }]); 
-        if($id_matkul){
-          $dataPembelajaran = $dataPembelajaran->where('id_matkul', $id_matkul);
-        }
-        if($kelas){
-          $dataPembelajaran = $dataPembelajaran->where('kelas', $kelas);
-        }
-        $dataPembelajaran = $dataPembelajaran->get()->toArray(); 
-
-
         $dataAbsen = Absensi::select([
-          'id',  
-          'id_pembelajaran',
-          'npm',
-          'status_absen',  
-          'coordinate_absen',
-          'deleted_at' 
-        ])
-        // ->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
-        ->with([
+          'absensi_mhs.id',  
+          'absensi_mhs.id_pembelajaran',
+          'absensi_mhs.npm',
+          'absensi_mhs.status_absen',  
+          'absensi_mhs.coordinate_absen',
+          'pembelajaran.status_kelas', 
+          'pembelajaran.pertemuan', 
+        ])->with([
           'mahasiswa' => function ($query) {
-            $query->select('registration_no', 'name','student_code');
-          },
-          // 'pembelajaran' => function ($query) {
-          //   $query->select('id', 'nik_dosen','id_matkul', 'pertemuan', 'kelas', 'status_kelas', 'token');
-          // },
-          // 'pembelajaran.dosen' => function ($query) {
-          //   $query->select('nip','nama', 'gelar_belakang');
-          // },
-          // 'pembelajaran.matkul' => function ($query) {
-          //   $query->select('code', 'curr_code','name', 'credit', 'semester');
-          // }
-        ]);
-        $dataAbsen = $dataAbsen->get()->toArray(); 
-        
-        // $dummy = array();
-        // $datass = collect($dataGet['Data'])->pluck('curr_code');
-        $result = $this->unique_key($dataAbsen, 'npm');   
+            $query->select('name','student_code');
+          }
+        ])
+        ->join('pembelajaran', 'absensi_mhs.id_pembelajaran', '=', 'pembelajaran.id') 
+        ->orderBy('pembelajaran.pertemuan', 'asc')
+        ->where('pembelajaran.id_matkul', $id_matkul)
+        ->where('pembelajaran.kelas', $kelas);
 
+        $dataAbsen = $dataAbsen->get()->toArray(); 
+
+        $result = array();
+        $groupRes = array();
+        foreach ($dataAbsen as $val) {
+          $groupRes[$val['mahasiswa']['name']][] = $val;
+        }
+
+        $dummy = array();
+        foreach ($groupRes as $key=>$val) {
+
+          $stAbsen = array();
+          foreach ($val as $val2) {
+            $npmData = $val2['npm'];  
+            array_push($stAbsen, $val2['status_absen']);  
+
+            $countPersen = (count($val2['status_absen']) / 14) * 100;
+            $persen = round($countPersen, 2). '%';
+          }         
+
+          $stAbsenDeal = array();
+          for ($i = 0; $i < 14; $i++) {
+            if(!empty($stAbsen[$i])){
+              array_push($stAbsenDeal, $stAbsen[$i]);
+            }else{
+              array_push($stAbsenDeal, null);
+            }
+          }
+
+          array_push($dummy, array(
+            "name_mhs" => $key,
+            "npm" => $npmData, 
+            "status_absen" => $stAbsenDeal,
+            "persentase" => ""
+          ));
+        }
+
+        
         return response()->json([
-          "dataPembelajaran" => $dataPembelajaran,
-          "dataAbsen" => $dataAbsen,
-          "data" => $result
+          "res" => $dummy,
+          "groupRes" => $groupRes,
+          // "absen" => $groupMhs,
+          "data" => $dataAbsen
         ]);
+
+        // $dataPembelajaran = Pembelajaran::select([
+        //   'id',  
+        //   'nik_dosen',
+        //   'id_matkul',
+        //   'pertemuan', 
+        //   'kelas',
+        //   'status_kelas',  
+        //   'token',
+        //   'deleted_at' 
+        // ])
+        // ->with([
+        // 'matkul' => function ($query) {
+        //   $query->select('code', 'curr_code','name', 'credit', 'semester');
+        // },
+        // 'absen' => function ($query) {
+        //   $query->select('id_pembelajaran','npm', 'status_absen');
+        // }, 
+        // 'absen.mahasiswa' => function ($query) {
+        //     $query->select('registration_no', 'name','student_code');
+        // }]); 
+        // if($id_matkul){
+        //   $dataPembelajaran = $dataPembelajaran->where('id_matkul', $id_matkul);
+        // }
+        // if($kelas){
+        //   $dataPembelajaran = $dataPembelajaran->where('kelas', $kelas);
+        // }
+        // $dataPembelajaran = $dataPembelajaran->get()->toArray(); 
+
+
+        // $dataAbsen = Absensi::select([
+        //   'id',  
+        //   'id_pembelajaran',
+        //   'npm',
+        //   'status_absen',  
+        //   'coordinate_absen',
+        //   'deleted_at' 
+        // ])
+        // // ->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
+        // ->with([
+        //   'mahasiswa' => function ($query) {
+        //     $query->select('registration_no', 'name','student_code');
+        //   }, 
+        // ]);
+        // $dataAbsen = $dataAbsen->get()->toArray(); 
+        
+        // // $dummy = array();
+        // // $datass = collect($dataGet['Data'])->pluck('curr_code');
+        // $result = $this->unique_key($dataAbsen, 'npm');   
+
+        // return response()->json([
+        //   "dataPembelajaran" => $dataPembelajaran,
+        //   "dataAbsen" => $dataAbsen,
+        //   "pertemuan" => count($dataPembelajaran),
+        //   "data" => $result
+        // ]);
 
         // if ($request->input('dataTable') == true) {
         //     return $dummyTable = Datatables::of($hasilModif)
