@@ -178,6 +178,7 @@ class AkademikController extends Controller
           $label = array();
           foreach ($dummyAll as $key) {
             $label[] = array(
+              "id" => $key['id'],
               "course_code" => $key['course_code'],
               "curr_code" => $key['curr_code'],
               "name" => $key['matkul']['name'],
