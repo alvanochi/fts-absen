@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model; 
+use Illuminate\Database\Eloquent\Model;  
 
 class Siak_Lecture extends Model
-{
+{ 
+
     protected $connection = 'second_db';
     protected $table = 'siak_lecture';  
 
@@ -25,20 +26,10 @@ class Siak_Lecture extends Model
         return $this->belongsTo(Siak_Lecturer::class, 'lecturer_code', 'code');
     }
 
-    // public function pembelajaran()
-    // {
-    //     return $this->hasMany(Pembelajaran::class,  'id_matkul', 'course_code');
-    // } 
-
     public function pembelajaran()
     {
-        return $this->hasMany(Pembelajaran::class,  'kelas', 'class');
-    } 
-
-    // public function pembelajaran()
-    // {
-    //     return $this->hasMany(Pembelajaran::class,  'id_matkul', 'course_code')->orWhere('kelas', $this->class);
-    // }
+        return $this->hasMany(Pembelajaran::class,  'id_lecture', 'id');
+    }   
 
     public static function getTableColumns()
     {

@@ -26,6 +26,7 @@ class PembelajaranController extends Controller
 
         $data = Pembelajaran::select([
             'id',  
+            'id_lecture',
             'nik_dosen',
             'id_matkul',
             'pertemuan', 
@@ -75,12 +76,13 @@ class PembelajaranController extends Controller
         $thisMonth = DATE('m');
         $thisYear = DATE('Y'); 
         $nextYear = date('Y', strtotime('+1 Year'));
-        if(!$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
+        if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
 
         $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
         $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
+                            ->where('id_lecture', $request->input('id_lecture'))
                             ->where('id_matkul', $request->input('id_matkul'))
                             ->where('kelas', $request->input('kelas'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
@@ -123,7 +125,7 @@ class PembelajaranController extends Controller
     public function store(Request $request)
     {  
         date_default_timezone_set('Asia/Jakarta'); 
-        $result = []; 
+        $result = [];  
  
         foreach (Pembelajaran::getTableColumns() as $key) {  
 
@@ -144,7 +146,7 @@ class PembelajaranController extends Controller
 
 
         $thisYear = DATE('Y');
-        if(!$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
+        if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
 

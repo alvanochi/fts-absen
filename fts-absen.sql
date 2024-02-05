@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 02 Feb 2024 pada 21.42
+-- Waktu pembuatan: 05 Feb 2024 pada 07.04
 -- Versi server: 10.4.21-MariaDB
 -- Versi PHP: 7.4.29
 
@@ -96,6 +96,7 @@ CREATE TABLE `password_resets` (
 
 CREATE TABLE `pembelajaran` (
   `id` int(11) NOT NULL,
+  `id_lecture` int(11) NOT NULL,
   `nik_dosen` varchar(100) NOT NULL,
   `id_matkul` varchar(50) NOT NULL,
   `pertemuan` varchar(255) NOT NULL,
@@ -112,10 +113,12 @@ CREATE TABLE `pembelajaran` (
 -- Dumping data untuk tabel `pembelajaran`
 --
 
-INSERT INTO `pembelajaran` (`id`, `nik_dosen`, `id_matkul`, `pertemuan`, `kelas`, `status_kelas`, `qrcode`, `token`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, '410100569', 'TIF304', '1', 'REGULER_B', 0, NULL, 'FTSwFemzuQW90UGvpOm854G5ZINKpsEHsx4XdiAhW9P', '2024-02-02 20:41:56', '2024-02-03 01:04:06', NULL),
-(2, '410100569', 'TIF304', '2', 'REGULER_B', 1, NULL, 'FTSaBwBFTEG6y0tJUg8WnhtQxUJU6jlBoMcA4DuBlNP', '2024-02-02 20:41:58', '2024-02-03 01:04:06', NULL),
-(4, '410100569', 'TIF304', '3', 'REGULER_B', 1, NULL, 'FTSIsZGVZpHRxhYtSmFrlHgYy7vod24Dh1UvZgdTSrR', '2024-02-02 20:41:26', '2024-02-02 23:51:35', NULL);
+INSERT INTO `pembelajaran` (`id`, `id_lecture`, `nik_dosen`, `id_matkul`, `pertemuan`, `kelas`, `status_kelas`, `qrcode`, `token`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 51545, '410100378', 'TIF222', '1', 'REGULER_D', 0, NULL, 'FTSolY3lhlEEJZyFW5J5dHuW9q1o4wOXp5GRl1WrpeE', '2024-02-05 05:49:19', '2024-02-05 11:10:33', NULL),
+(2, 51515, '410100378', 'TIF224', '1', 'REGULER_B', 0, NULL, 'FTSQsXRGDvHCXeKn2LNPv9EpNntkLhk7ytDQe16rbuF', '2024-02-05 05:49:51', '2024-02-05 12:01:44', NULL),
+(3, 51595, '410100378', 'TIF224', '1', 'KARYAWAN_A', 0, NULL, 'FTSG4wrJU9iZJFOUfgUh3P8jo3I00nD14qf4vgo65Gj', '2024-02-05 05:53:03', '2024-02-05 12:04:53', NULL),
+(4, 51608, '410100378', 'TIF222', '1', 'KARYAWAN_A', 0, NULL, 'FTSTAS3ds4P3o4qVd0UvWBnXDEIblnPmm8qblJVk9n0', '2024-02-05 05:52:00', '2024-02-05 12:07:44', NULL),
+(5, 51474, '410100496', 'TIF152', '1', 'REGULER_D', 0, NULL, 'FTSG7DVaxGnUJWpgOcDPGMwhzJC5LdXtFDX0fJvya1P', '2024-02-05 05:59:08', '2024-02-05 12:59:08', NULL);
 
 -- --------------------------------------------------------
 
@@ -235,7 +238,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT untuk tabel `pembelajaran`
 --
 ALTER TABLE `pembelajaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `personal_access_tokens`

@@ -220,7 +220,7 @@ class AkademikController extends Controller
     }
 
     public function listPertemuan(Request $request){
-      try {
+      // try {
         $filterField = $request->input('filter');
         $filterValue = $request->input('filterValue');
 
@@ -349,10 +349,10 @@ class AkademikController extends Controller
           );
         }
 
-        // return response()->json([
-        //   "real" => $dummy,
-        //   "data" => $hasilModif
-        // ]);
+        return response()->json([
+          "real" => $dummy,
+          "data" => $hasilModif
+        ]);
         
         if ($request->input('dataTable') == true) {
           return $dummyTable = Datatables::of($hasilModif)
@@ -362,9 +362,9 @@ class AkademikController extends Controller
           
           return ResponseBuilder::success(200, "success", $hasilModif);
         }
-      } catch (\Exception $e) {
-        return ResponseBuilder::success(200, "error", null); 
-      }
+      // } catch (\Exception $e) {
+      //   return ResponseBuilder::success(200, "error", null); 
+      // }
     }
 
     public function listAbsenMatkul(Request $request){

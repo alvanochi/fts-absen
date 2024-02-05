@@ -14,6 +14,7 @@ class Pembelajaran extends Model
     protected $table = 'pembelajaran';
     protected $fillable = [ 
         'id', 
+        'id_lecture',
         'nik_dosen',
         'id_matkul',
         'pertemuan', 
