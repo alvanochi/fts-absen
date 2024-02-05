@@ -314,6 +314,8 @@ class AkademikController extends Controller
                 array_push($pertemuan, 1);
                 if($key['pembelajaran'][$i]['status_kelas'] == 1){
                   $stKelas = 'Online';
+                }else if($key['pembelajaran'][$i]['status_kelas'] == 2){
+                  $stKelas = 'Hybrid';
                 }else{
                   $stKelas = 'Offline';
                 }
