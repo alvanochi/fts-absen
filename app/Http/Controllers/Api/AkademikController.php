@@ -15,6 +15,7 @@ use App\Models\Siak_Lecture;
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
 use App\Models\Siak_Course;
+use App\Models\Siak_Curriculum;
 
 
 
@@ -108,6 +109,8 @@ class AkademikController extends Controller
           $stSemester = "GASAL";
         } 
 
+        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first(); 
+
         $data = Siak_Lecture::select([
             'id',  
             'academic_year',
@@ -123,8 +126,9 @@ class AkademikController extends Controller
             'classroom', 
         ])
         ->with('matkul', 'lecturer') 
+        ->where('curr_code', $cekNewKurikulum['curr_code']) 
         ->where('siak_lecture.department_code', 'FT_TI') 
-        ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+        ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), curr_code DESC, course_code ASC, from_time DESC, until_time DESC");
         // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
         
 
@@ -148,7 +152,8 @@ class AkademikController extends Controller
                     $data->where($value, '=', $filterValue[$key]);
                 }
             }
-        }
+        }  
+
         if ($request->input('dataTable') == true) {
           return $dummyTable = Datatables::of($data)
             ->addIndexColumn()  
@@ -173,10 +178,15 @@ class AkademikController extends Controller
                 }
             });
           }
-          $dummyAll = $data->get()->toArray();
+          $dummyAll = $data->get()->toArray(); 
+          // return response()->json(
+          //   array(
+          //     "data" => $dummyAll
+          //   )
+          // ); 
 
           $label = array();
-          foreach ($dummyAll as $key) {
+          foreach ($dummyAll as $key) { 
             $label[] = array(
               "id" => $key['id'],
               "course_code" => $key['course_code'],
@@ -188,7 +198,7 @@ class AkademikController extends Controller
               "from_time" => $key['from_time'],
               "until_time" => $key['until_time'],
               "class_room" => $key['classroom']
-            );
+            ); 
           }
 
           $sks = collect($dummyAll)->sum('matkul.credit');
