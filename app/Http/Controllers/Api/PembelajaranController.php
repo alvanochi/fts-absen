@@ -126,9 +126,9 @@ class PembelajaranController extends Controller
     {  
         date_default_timezone_set('Asia/Jakarta'); 
         $result = [];  
- 
+    
         foreach (Pembelajaran::getTableColumns() as $key) {  
-
+    
             if ($request->file() != null && $request->file($key) != null) {
                 
                     $files = $request->file($key);
@@ -143,13 +143,12 @@ class PembelajaranController extends Controller
             }
                 
         }    
-
-
+    
         $thisYear = DATE('Y');
         if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
-
+    
         $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
         $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
                             ->where('id_matkul', $request->input('id_matkul'))
@@ -157,24 +156,23 @@ class PembelajaranController extends Controller
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $prosesPertemuan = $prosesPertemuan + 1;
-        // $prosesPertemuan = $prosesPertemuan->get();
         if($prosesPertemuan == 15){
             $prosesPertemuan = 1;
         }
-        // $result['pertemuan'] = $prosesPertemuan;
+    
+        $result['pertemuan'] = $prosesPertemuan;
+    
+        $tokenExists = true;
+        $token = null;
 
-        // return response()->json([
-        //     "status" => 200,
-        //     "message" => "Berhasil", 
-        //     "tahun" => $thisYear,
-        //     "data" => $prosesPertemuan,
-        //     "res" => $result, 
-        // ], 200);
-        
-        $time = time();
-        $strTime = strtotime($time);
-        $result['token'] = 'FTS'.$strTime.''.Str::random(40).'';
+        while ($tokenExists) {
+            $token = mt_rand(100000, 999999); 
+            $tokenExists = Pembelajaran::where('token', $token)->exists(); 
+        }
 
+        $result['token'] = $token;
+
+    
         $dummy = Pembelajaran::create($result);
         if ($dummy) {
             $output = ResponseBuilder::success(200, "success", $dummy); 
@@ -182,8 +180,8 @@ class PembelajaranController extends Controller
             $output = ResponseBuilder::success(200, "error", $dummy);
         }
         return $output; 
-       
-    }  
+    }
+    
 
     public function update($id, Request $request)
     {  
