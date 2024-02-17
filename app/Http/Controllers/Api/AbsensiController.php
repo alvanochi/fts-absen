@@ -28,6 +28,8 @@ class AbsensiController extends Controller
             'id',  
             'id_pembelajaran',
             'npm',
+            'upload_dok',
+            'nilai',
             'status_absen',  
             'coordinate_absen',
             'created_at',
@@ -81,6 +83,10 @@ class AbsensiController extends Controller
     {  
         date_default_timezone_set('Asia/Jakarta'); 
         $result = []; 
+        $npm = $request->input('npm'); 
+        if(!$npm){
+            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
+        }
  
         foreach (Absensi::getTableColumns() as $key) {  
 
@@ -88,7 +94,7 @@ class AbsensiController extends Controller
                 
                     $files = $request->file($key);
                     $filename = basename($files->getClientOriginalName(), '.'.$files->getClientOriginalExtension()); 
-                    $files->move(storage_path('app/public/pelanggaran/photo/'), $filename . '.' . $files->getClientOriginalExtension());
+                    $files->move(storage_path('app/public/tugas/'.$npm.'/'), $filename . '.' . $files->getClientOriginalExtension());
                     $result[$key] = $filename . '.' . $files->getClientOriginalExtension();
                      
             } elseif ($request->input($key) != null) { 
@@ -277,6 +283,11 @@ class AbsensiController extends Controller
     public function update($id, Request $request)
     {  
         date_default_timezone_set('Asia/Jakarta'); 
+        $npm = $request->input('npm'); 
+        if(!$npm){
+            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
+        }
+
         $data = Absensi::find($id);
         if (!$data) {
             return ResponseBuilder::success(200, "error", '');
@@ -289,7 +300,7 @@ class AbsensiController extends Controller
                 
                     $files = $request->file($key);
                     $filename = basename($files->getClientOriginalName(), '.'.$files->getClientOriginalExtension()); 
-                    $files->move(storage_path('app/public/pelanggaran/photo/'), $filename . '.' . $files->getClientOriginalExtension());
+                    $files->move(storage_path('app/public/tugas/'.$npm.'/'), $filename . '.' . $files->getClientOriginalExtension());
                     $result[$key] = $filename . '.' . $files->getClientOriginalExtension();
                      
             } elseif ($request->input($key) != null) { 

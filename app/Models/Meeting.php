@@ -22,8 +22,7 @@ class Meeting extends Model
         'bukti_foto', 
 
         'pertemuan', 
-        'notulen', 
-        'kelas',
+        'notulen',  
         'status_ruangan',  
         'token',
         'deleted_at' 

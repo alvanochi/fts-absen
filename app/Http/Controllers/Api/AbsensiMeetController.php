@@ -27,7 +27,8 @@ class AbsensiMeetController extends Controller
         $data = AbsensiMeet::select([
             'id',  
             'id_meeting',
-            'npm',
+            'code',
+            'name_absen',
             'status_absen',  
             'coordinate_absen',
             'created_at',
@@ -154,9 +155,9 @@ class AbsensiMeetController extends Controller
         date_default_timezone_set('Asia/Jakarta');
         $token = $request->input('token');
         $coordinate = $request->input('coordinate');
-        $npm = $request->input('npm');
+        $code = $request->input('code');
         $st_absen = $request->input('status_absen');
-        if(!$token || !$coordinate || !$npm){
+        if(!$token || !$coordinate || !$code){
             return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
         }
         
@@ -195,7 +196,7 @@ class AbsensiMeetController extends Controller
             $date = strtotime('2 hours', $timeCreate);
             if ($time < $date) {   
                 $cekAbsen = AbsensiMeet::where('id_meeting', $data->id);
-                $cekAbsen = $cekAbsen->where('npm', $npm)->first();
+                $cekAbsen = $cekAbsen->where('code', $code)->first();
 
                 // return ResponseBuilder::success(200, "failed", $cekAbsen); 
                 if($cekAbsen){ 
@@ -203,7 +204,7 @@ class AbsensiMeetController extends Controller
                 }else{
                     $absensi = []; 
                     $absensi['id_meeting'] = $data->id;
-                    $absensi['npm'] = $npm;
+                    $absensi['code'] = $code;
                     $absensi['status_absen'] = $st_absen ? $st_absen : 0;
                     $absensi['coordinate_absen'] = $coordinate;
                     if($data->status_kelas == 0 && $stPosisi == false){       // Jika Kelas Offline dan Tidak Masuk radius 

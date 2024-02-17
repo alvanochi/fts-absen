@@ -34,12 +34,12 @@ class MeetingController extends Controller
             'bukti_foto', 
 
             'pertemuan', 
-            'notulen', 
-            'kelas',
+            'notulen',  
             'status_ruangan',  
             'token',
             'deleted_at' 
-        ])->with('dosen', 'matkul'); 
+        ]);
+        // ->with('dosen', 'matkul'); 
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {

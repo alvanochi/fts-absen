@@ -16,6 +16,8 @@ class Absensi extends Model
         'id', 
         'id_pembelajaran',
         'npm',
+        'upload_dok',
+        'nilai',
         'status_absen',  
         'coordinate_absen',
         'deleted_at' 

@@ -15,7 +15,8 @@ class AbsensiMeet extends Model
     protected $fillable = [ 
         'id', 
         'id_meeting',
-        'npm',
+        'code',
+        'name_absen',
         'status_absen',  
         'coordinate_absen',
         'deleted_at' 

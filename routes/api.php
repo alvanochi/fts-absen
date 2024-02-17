@@ -29,10 +29,7 @@ Route::post('/register', 'Api\AuthController@register');
     Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
     Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
     Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');  
-    Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');  
-
-    Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
-    Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
+    Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');   
 
 
     Route::get('/absensi', 'Api\AbsensiController@index');   
@@ -48,26 +45,26 @@ Route::post('/register', 'Api\AuthController@register');
  
 // for absensi Jadwal meeting
 
-    Route::get('/pembelajaran/meeting/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');  
-    Route::post('/pembelajaran/meeting/store', 'Api\PembelajaranController@store');  
-    Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
-    Route::post('/pembelajaran/meeting/update/{id}', 'Api\PembelajaranController@update');  
-    Route::delete('/pembelajaran/meeting/delete/{id}', 'Api\PembelajaranController@delete');  
+    Route::get('/meeting/cek-pertemuan', 'Api\MeetingController@cekPertemuan');  
+    Route::post('/meeting/store', 'Api\MeetingController@store');  
+    Route::get('/meeting', 'Api\MeetingController@index');  
+    Route::post('/meeting/update/{id}', 'Api\MeetingController@update');  
+    Route::delete('/meeting/delete/{id}', 'Api\MeetingController@delete');   
 
-    Route::get('/pembelajaran/meeting/list-pertemuan', 'Api\AkademikController@listPertemuan');  
-    Route::get('/pembelajaran/meeting/list-absen', 'Api\AkademikController@listAbsenMatkul');  
-
-
-    Route::get('/absensi/meeting', 'Api\AbsensiController@index');   
-    Route::post('/absensi/meeting/store', 'Api\AbsensiController@store'); 
-    Route::get('/absensi/meeting/scanqr', 'Api\AbsensiController@scanQr');  
-    Route::post('/absensi/meeting/scan-qr', 'Api\AbsensiController@scanQr'); 
-    Route::get('/absensi/meeting/show-qr', 'Api\AbsensiController@showQr'); 
-    Route::get('/absensi/meeting/download-qr', 'Api\AbsensiController@downloadQr'); 
-    Route::post('/absensi/meeting/update/{id}', 'Api\AbsensiController@update');  
-    Route::delete('/absensi/meeting/delete/{id}', 'Api\AbsensiController@delete'); 
+    Route::get('/absensi-meeting', 'Api\AbsensiMeetController@index');   
+    Route::post('/absensi-meeting/store', 'Api\AbsensiMeetController@store'); 
+    Route::get('/absensi-meeting/scanqr', 'Api\AbsensiMeetController@scanQr');  
+    Route::post('/absensi-meeting/scan-qr', 'Api\AbsensiMeetController@scanQr'); 
+    Route::get('/absensi-meeting/show-qr', 'Api\AbsensiMeetController@showQr'); 
+    Route::get('/absensi-meeting/download-qr', 'Api\AbsensiMeetController@downloadQr'); 
+    Route::post('/absensi-meeting/update/{id}', 'Api\AbsensiMeetController@update');  
+    Route::delete('/absensi-meeting/delete/{id}', 'Api\AbsensiMeetController@delete'); 
 
 // for absensi Jadwal meeting
+
+
+Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
+Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
 
 Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
 Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
