@@ -30,6 +30,7 @@ class AbsensiController extends Controller
             'npm',
             'status_absen',  
             'coordinate_absen',
+            'created_at' 
             'deleted_at' 
         ])
         // ->with('mahasiswa', 'pembelajaran.dosen', 'pembelajaran.matkul');  
