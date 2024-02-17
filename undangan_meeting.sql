@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Waktu pembuatan: 17 Feb 2024 pada 08.27
+-- Waktu pembuatan: 17 Feb 2024 pada 08.47
 -- Versi server: 10.4.21-MariaDB
 -- Versi PHP: 7.4.29
 
@@ -30,8 +30,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `undangan_meeting` (
   `id` int(11) NOT NULL,
   `id_meeting` int(11) NOT NULL,
-  `npm` varchar(100) NOT NULL,
-  `nip_dosen` varchar(100) NOT NULL,
+  `npm` varchar(100) DEFAULT NULL,
+  `nip_dosen` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
