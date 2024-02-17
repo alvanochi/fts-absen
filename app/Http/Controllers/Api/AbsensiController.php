@@ -193,7 +193,7 @@ class AbsensiController extends Controller
         // $lat2 = "-6.56157168370266";
         // $lon2 = "106.79061952492778";
 
-        $countRadius = $this->distance($lat1, $lon1, $lat2, $lon2, 'FT', true, 150);
+        $countRadius = $this->distance($lat1, $lon1, $lat2, $lon2, 'FT', true, 120);
         if($countRadius < 105)
         {
           $stPosisi = true;
