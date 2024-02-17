@@ -63,11 +63,7 @@ class InviteMeetController extends Controller
     public function store(Request $request)
     {  
         date_default_timezone_set('Asia/Jakarta'); 
-        $result = []; 
-        $npm = $request->input('npm'); 
-        if(!$npm){
-            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
-        }
+        $result = [];  
  
         foreach (InviteMeet::getTableColumns() as $key) {  
 
@@ -100,11 +96,7 @@ class InviteMeetController extends Controller
 
     public function update($id, Request $request)
     {  
-        date_default_timezone_set('Asia/Jakarta'); 
-        $npm = $request->input('npm'); 
-        if(!$npm){
-            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
-        }
+        date_default_timezone_set('Asia/Jakarta');  
 
         $data = InviteMeet::find($id);
         if (!$data) {
