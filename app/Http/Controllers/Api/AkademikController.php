@@ -381,7 +381,7 @@ class AkademikController extends Controller
     }
 
     public function listAbsenMatkul(Request $request){
-      try {
+      // try {
         $id_matkul = $request->input('id_matkul');
         $kelas = $request->input('kelas');
         if(!$id_matkul && !$kelas){
@@ -393,10 +393,7 @@ class AkademikController extends Controller
         $from = date(''.$thisYear.'-02-01');
         $to = date(''.$nextYear.'-02-01');
 
-        // return response()->json([
-        //   "real" => $from,
-        //   "data" => $to
-        // ]);
+        
         $dataAbsen = Absensi::select([
           'absensi_mhs.id',  
           'absensi_mhs.id_pembelajaran',
@@ -414,47 +411,64 @@ class AkademikController extends Controller
         ->orderBy('pembelajaran.pertemuan', 'asc')
         ->where('pembelajaran.id_matkul', $id_matkul)
         ->where('pembelajaran.kelas', $kelas)
-        ->whereBetween('absensi_mhs.created_at', [$from, $to]); 
-
+        ->whereBetween('absensi_mhs.created_at', [$from, $to]);  
         $dataAbsen = $dataAbsen->get()->toArray(); 
 
+
+        
         $result = array();
         $groupRes = array();
         foreach ($dataAbsen as $val) {
           $groupRes[$val['mahasiswa']['name']][] = $val;
         }
+        
+        
 
         $dummy = array();
         foreach ($groupRes as $key=>$val) {
 
-          $stAbsen = array();
+          $stAbsen = array(); 
+          $temuDum = array(); 
           foreach ($val as $val2) {
-            $npmData = $val2['npm'];  
-            // $npmData = $val2['npm'];  
-            array_push($stAbsen, $val2['status_absen']);  
-          }         
+            $npmData = $val2['npm'];   
+            array_push($stAbsen, $val2['status_absen']);    
+            // $pertemuanDumm[$val2['pertemuan']] = $val2['status_absen'];
+            array_push($temuDum, intval($val2['pertemuan']));    
+          }   
 
           $stAbsenDeal = array();
-          for ($i = 0; $i < 14; $i++) {
-            if(!empty($stAbsen[$i])){
-              array_push($stAbsenDeal, $stAbsen[$i]); 
-            }else{
-              array_push($stAbsenDeal, null);
-            }
-          }
+          $pertemuanDumm = array(); 
+          for ($i = 1; $i <= 14; $i++) {  
+            $sumDums = $i - 1;
+            // $pertemuanDumm['p'.$sumDums.''] = $i + 1; 
+            
+            $stAbsenDeal[] = in_array($i, $temuDum) ? 1 : null;
+            // if(!empty($stAbsen[$i]) ){  
+            //   array_push($stAbsenDeal, $stAbsen[$i]); 
+            // }else{
+            //   array_push($stAbsenDeal, null);
+            // }
 
+          }   
            
-            $countPersen = (count($val) / 14) * 100;
-            $persen = round($countPersen, 2). '%';
+          $countPersen = (count($val) / 14) * 100;
+          $persen = round($countPersen, 2). '%';
          
           array_push($dummy, array(
             "name_mhs" => $key,
-            "npm" => $npmData, 
-            "npm" => $npmData, 
+            "npm" => $npmData,   
             "status_absen" => $stAbsenDeal,
             "persentase" => $persen
           ));
         } 
+
+        // return response()->json([
+        //   "status" => 200,
+        //   'groupRes' => $groupRes,
+        //   "data" => $dummy 
+        // ]);
+
+
 
         $dataMatkul = Siak_Course::select([
           'siak_course.code',
@@ -469,22 +483,12 @@ class AkademikController extends Controller
         ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
         ->where('code', $id_matkul)
         ->where('siak_lecture.class', $kelas)
-        ->first()->toArray();
-
-        // return response()->json([
-        //   "matkul" => $dataMatkul,
-        //   "real" => $groupRes,
-        //   "data" => $dummy
-        // ]);
+        ->first()->toArray(); 
 
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($dummy)
             ->addIndexColumn()  
-            // ->addColumn('qr_code', function ($row) {
-            //     return QrCode::generate(
-            //         $row['token'],
-            //     );
-            // })
+            
             ->with([
               'matkul' => $dataMatkul,
             ])
@@ -498,9 +502,9 @@ class AkademikController extends Controller
             ], 200);
             // return ResponseBuilder::success(200, "success", $dummy);
         }
-      } catch (\Exception $e) {
-        return ResponseBuilder::success(200, "error", null); 
-      }
+      // } catch (\Exception $e) {
+      //   return ResponseBuilder::success(200, "error", null); 
+      // }
     }
 
     public function kelas(Request $request){
