@@ -214,7 +214,7 @@ class AbsensiController extends Controller
             $time = time();
 
             $timeCreate = strtotime($data->created_at);
-            $date = strtotime('2 hours', $timeCreate);
+            $date = strtotime('3 hours', $timeCreate);
             if ($time < $date) {   
                 $cekAbsen = Absensi::where('id_pembelajaran', $data->id);
                 $cekAbsen = $cekAbsen->where('npm', $npm)->first();
