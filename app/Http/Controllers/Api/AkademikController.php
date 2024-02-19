@@ -415,11 +415,16 @@ class AkademikController extends Controller
         $dataAbsen = $dataAbsen->get()->toArray(); 
 
 
-        
+        // return response()->json([
+        //   "status" => 200, 
+        //   "data" => $dataAbsen 
+        // ]);
+
         $result = array();
         $groupRes = array();
         foreach ($dataAbsen as $val) {
-          $groupRes[$val['mahasiswa']['name']][] = $val;
+          // $groupRes[$val['mahasiswa']['name']][] = $val;
+          $groupRes[$val['npm']][] = $val;
         }
         
         
