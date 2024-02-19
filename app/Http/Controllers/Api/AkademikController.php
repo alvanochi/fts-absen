@@ -468,13 +468,13 @@ class AkademikController extends Controller
           ));
         } 
 
+        
+        
+        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
         // return response()->json([
         //   "status" => 200,
-        //   'groupRes' => $groupRes,
-        //   "data" => $dummy 
+        //   'groupRes' => $cekNewKurikulum['curr_code']
         // ]);
-
-
 
         $dataMatkul = Siak_Course::select([
           'siak_course.code',
@@ -487,6 +487,7 @@ class AkademikController extends Controller
           'siak_lecture.on_day',
         ])
         ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
+        ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
         ->where('code', $id_matkul)
         ->where('siak_lecture.class', $kelas)
         ->first()->toArray(); 
