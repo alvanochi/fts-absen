@@ -423,8 +423,9 @@ class AkademikController extends Controller
         $result = array();
         $groupRes = array();
         foreach ($dataAbsen as $val) {
-          // $groupRes[$val['mahasiswa']['name']][] = $val;
-          $groupRes[$val['npm']][] = $val;
+          $nameMhs = $val['mahasiswa'] ? $val['mahasiswa']['name'] : $val['npm'];
+          $groupRes[$nameMhs][] = $val;
+          // $groupRes[$val['npm']][] = $val;
         }
         
         
