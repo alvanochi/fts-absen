@@ -16,6 +16,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use App\Models\Absensi;
 use App\Models\Pembelajaran;
+use App\Models\Pmb_Candidate;
+
 
 class AbsensiController extends Controller
 { 
@@ -181,6 +183,16 @@ class AbsensiController extends Controller
         if(!$token || !$coordinate || !$npm){
             return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
         }
+
+        $cekNPM = Pmb_Candidate::where('student_code', $npm)->first();
+        if(!$cekNPM){
+            return ResponseBuilder::success(200, "failed, NPM tidak di temukan", null); 
+        }
+        // return response()->json([
+        //     "status" => 200,
+        //     "message" => "testing",   
+        //     "data" => $cekNPM
+        // ], 200); 
         
         // FROM
         $coords = explode(",", $coordinate); 
