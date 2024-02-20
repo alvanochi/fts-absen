@@ -16,6 +16,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Arr;
 
 use App\Models\Pembelajaran;
+use App\Models\Absensi;
 
 class PembelajaranController extends Controller
 { 
@@ -220,9 +221,15 @@ class PembelajaranController extends Controller
         $data = Pembelajaran::find($id);
         if ($data) { 
             $data->delete();
-            return ResponseBuilder::success(200, "success", []);
+
+            $dataAbsen = Absensi::where('id_pembelajaran', $id)->delete();
+            if($dataAbsen){
+                return ResponseBuilder::success(200, "success", []);
+            }else{
+                return ResponseBuilder::success(200, "error, delete Absen", []);
+            }
         }else{
-            return ResponseBuilder::success(200, "error", []);
+            return ResponseBuilder::success(200, "error, delete Pembelajaran", []);
         } 
     }
 }

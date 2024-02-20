@@ -184,10 +184,10 @@ class AbsensiController extends Controller
             return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
         }
 
-        $cekNPM = Pmb_Candidate::where('student_code', $npm)->first();
-        if(!$cekNPM){
-            return ResponseBuilder::success(200, "failed, NPM tidak di temukan", null); 
-        }
+        // $cekNPM = Pmb_Candidate::where('student_code', $npm)->first();
+        // if(!$cekNPM){
+        //     return ResponseBuilder::success(200, "failed, NPM tidak di temukan", null); 
+        // }
         // return response()->json([
         //     "status" => 200,
         //     "message" => "testing",   
