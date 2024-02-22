@@ -31,6 +31,11 @@ class AbsensiMeet extends Model
             $query->whereNull('absensi_meeting.deleted_at');
         });
     }
+
+    // public function mahasiswa()
+    // {
+    //     return $this->belongsTo(Pmb_Candidate::class, 'code', 'student_code');
+    // }
   
     public static function getTableColumns()
     {

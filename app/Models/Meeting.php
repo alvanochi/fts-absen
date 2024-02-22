@@ -13,8 +13,7 @@ class Meeting extends Model
 
     protected $table = 'meeting';
     protected $fillable = [ 
-        'id',   
-        'nik_dosen', 
+        'id',    
 
         'nm_pengundang', 
         'nm_kegiatan', 
@@ -22,6 +21,8 @@ class Meeting extends Model
         'bukti_foto', 
 
         'pertemuan', 
+        'tanggal', 
+        'waktu', 
         'notulen',  
         'status_ruangan',  
         'token',

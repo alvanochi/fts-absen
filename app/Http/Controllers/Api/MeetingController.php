@@ -26,14 +26,14 @@ class MeetingController extends Controller
 
         $data = Meeting::select([
             'id',   
-            'nik_dosen', 
-
             'nm_pengundang', 
             'nm_kegiatan', 
             'ruangan', 
             'bukti_foto', 
 
             'pertemuan', 
+            'tanggal', 
+            'waktu', 
             'notulen',  
             'status_ruangan',  
             'token',
@@ -81,13 +81,12 @@ class MeetingController extends Controller
         $thisMonth = DATE('m');
         $thisYear = DATE('Y'); 
         $nextYear = date('Y', strtotime('+1 Year'));
-        if(!$request->input('nik_dosen') || !$request->input('nm_kegiatan') || !$request->input('ruangan')){
+        if(!$request->input('nm_kegiatan') || !$request->input('ruangan')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
 
         $prosesPertemuan = Meeting::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen')) 
-                            ->where('nm_kegiatan', $request->input('nm_kegiatan'))
+        $prosesPertemuan = $prosesPertemuan->where('nm_kegiatan', $request->input('nm_kegiatan'))
                             ->where('ruangan', $request->input('ruangan'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
 
@@ -149,13 +148,12 @@ class MeetingController extends Controller
         }    
     
         $thisYear = DATE('Y');
-        if(!$request->input('nik_dosen') || !$request->input('nm_kegiatan') || !$request->input('ruangan')){
+        if(!$request->input('nm_kegiatan') || !$request->input('ruangan')){
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         } 
     
         $prosesPertemuan = Meeting::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
-                            ->where('nm_kegiatan', $request->input('nm_kegiatan'))
+        $prosesPertemuan = $prosesPertemuan->where('nm_kegiatan', $request->input('nm_kegiatan'))
                             ->where('ruangan', $request->input('ruangan'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
