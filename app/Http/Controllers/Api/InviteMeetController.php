@@ -30,7 +30,7 @@ class InviteMeetController extends Controller
             'nip_dosen',
             'created_at',
             'deleted_at' 
-        ])->with('mahasiswa','dosen');
+        ])->with('mahasiswa', 'dosen');
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {

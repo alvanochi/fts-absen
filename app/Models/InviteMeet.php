@@ -43,7 +43,7 @@ class InviteMeet extends Model
 
     public function dosen()
     {
-        return $this->belongsTo(Simpeg_Pegawai::class, 'nik_dosen', 'nip');
+        return $this->belongsTo(Simpeg_Pegawai::class, 'nip_dosen', 'nip');
     }
     
   
