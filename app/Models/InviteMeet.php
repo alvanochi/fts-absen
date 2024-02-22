@@ -35,6 +35,16 @@ class InviteMeet extends Model
     // {
     //     return $this->hasMany(Pembelajaran::class, 'id', 'id_pembelajaran');
     // }
+
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Pmb_Candidate::class, 'npm', 'student_code');
+    }
+
+    public function dosen()
+    {
+        return $this->belongsTo(Simpeg_Pegawai::class, 'nik_dosen', 'nip');
+    }
     
   
     public static function getTableColumns()
