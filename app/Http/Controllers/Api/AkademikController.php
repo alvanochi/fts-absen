@@ -448,7 +448,7 @@ class AkademikController extends Controller
             $sumDums = $i - 1;
             // $pertemuanDumm['p'.$sumDums.''] = $i + 1; 
             
-            $stAbsenDeal[] = in_array($i, $temuDum) ? !empty($stAbsen[$i]) ? $stAbsen[$i] : null : null;
+            $stAbsenDeal[] = in_array($i, $temuDum) ? 1 : null;
             // if(!empty($stAbsen[$i]) ){  
             //   array_push($stAbsenDeal, $stAbsen[$i]); 
             // }else{
