@@ -244,15 +244,16 @@ class AkademikController extends Controller
         $thisYear = DATE("Y");
         $nextYear = date('Y', strtotime('+1 Year'));
         $from = date(''.$thisYear.'-02-01');
-        $to = date(''.$nextYear.'-02-01');
+        $to = date(''.$nextYear.'-02-01'); 
 
-        $previousyear = $thisYear -1;
-
-        $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
         if($thisMonth <= 9){   //GENAP
           $stSemester = "GENAP";
+          $previousyear = $thisYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
         }else{    //GASAL
           $stSemester = "GASAL";
+          $previousyear = $nextYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
         } 
 
         $data = Siak_Lecture::select([
@@ -347,6 +348,8 @@ class AkademikController extends Controller
         
 
           $hasilModif[] = array( 
+            "academic_year" => $key['academic_year'],
+            "semester" => $key['semester'],
             "course_code" => $key['course_code'],
             "curr_code" => $key['curr_code'],
             "name_matkul" => $key['matkul']['name'],
