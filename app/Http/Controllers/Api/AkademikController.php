@@ -349,6 +349,7 @@ class AkademikController extends Controller
 
           $hasilModif[] = array( 
             "academic_year" => $key['academic_year'],
+            // "academic_year" => $thnAkademik, 
             "semester" => $key['semester'],
             "course_code" => $key['course_code'],
             "curr_code" => $key['curr_code'],
@@ -450,33 +451,12 @@ class AkademikController extends Controller
           $stAbsenDeal = array();
           $pertemuanDumm = array(); 
           $dummyT = array(); 
-          // for ($i = 1; $i <= 14; $i++) {  
-            // $sumDums = $i;
-            // $pertemuanDumm['p'.$sumDums.''] = $i + 1; 
-            // if(!empty($temuDum[$i-1])){
-            //   $index = $temuDum[$i-1];
-            //   $sumDums = !empty($stAbsen[$index]) ? $stAbsen[$index] : null;
-            // }else{
-            //   $sumDums = null;
-            // }
- 
-            // if($i-1 == !empty($temuDum[$i-1])){
+           
 
-            //   array_push($dummyT, $stAbsen[$i-1]); 
-            // }else{
-            //   array_push($dummyT, null); 
-            // }
-
-            // $stAbsenDeal[] = in_array($i, $temuDum) ? 1 : null;
-            // if(!empty($stAbsen[$i]) ){  
-            //   array_push($stAbsenDeal, $stAbsen[$i]); 
-            // }else{
-            //   array_push($stAbsenDeal, null);
-            // }
-
-          // }   
-
+          
           // Inisialisasi hasil array
+          $stAbsen = [1];
+          $temuDum = [5];
           $stAbsenDeal = [];
 
           // Iterasi untuk setiap pertemuan
@@ -485,9 +465,13 @@ class AkademikController extends Controller
               if (in_array($i, $temuDum)) {
                   // Menentukan nilai kehadiran berdasarkan indeks pada array stAbsen
                   if(count($stAbsen) > 1){
-                    $dx = $i - 2;
+                    if($temuDum[0] == 1){
+                      $dx = $i - 1;
+                    }else{
+                      $dx = $i - $temuDum[0];
+                    }
                   }else{
-                    $dx = $i - 1;
+                    $dx = $i - $temuDum[0];
                   }
                   $nilai_kehadiran = isset($stAbsen[$dx]) ? $stAbsen[$dx] : null; 
                   // $status = $nilai_kehadiran;
