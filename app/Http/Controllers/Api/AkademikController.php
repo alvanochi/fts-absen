@@ -249,7 +249,7 @@ class AkademikController extends Controller
         $previousyear = $thisYear -1;
 
         $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
-        if($thisMonth <= 6){   //GENAP
+        if($thisMonth <= 9){   //GENAP
           $stSemester = "GENAP";
         }else{    //GASAL
           $stSemester = "GASAL";
@@ -415,10 +415,7 @@ class AkademikController extends Controller
         $dataAbsen = $dataAbsen->get()->toArray(); 
 
 
-        // return response()->json([
-        //   "status" => 200, 
-        //   "data" => $dataAbsen 
-        // ]);
+        
 
         $result = array();
         $groupRes = array();
@@ -427,8 +424,13 @@ class AkademikController extends Controller
           $groupRes[$nameMhs][] = $val;
           // $groupRes[$val['npm']][] = $val;
         }
-        
-        
+         
+        // return response()->json([
+        //   "status" => 200,  
+        //   // "real" => $groupRes, 
+        //   "stAbsen" => $st_absen,
+        //   "data" => $hasil_array 
+        // ]);
 
         $dummy = array();
         foreach ($groupRes as $key=>$val) {
@@ -444,18 +446,68 @@ class AkademikController extends Controller
 
           $stAbsenDeal = array();
           $pertemuanDumm = array(); 
-          for ($i = 1; $i <= 14; $i++) {  
-            $sumDums = $i - 1;
+          $dummyT = array(); 
+          // for ($i = 1; $i <= 14; $i++) {  
+            // $sumDums = $i;
             // $pertemuanDumm['p'.$sumDums.''] = $i + 1; 
-            
-            $stAbsenDeal[] = in_array($i, $temuDum) ? 1 : null;
+            // if(!empty($temuDum[$i-1])){
+            //   $index = $temuDum[$i-1];
+            //   $sumDums = !empty($stAbsen[$index]) ? $stAbsen[$index] : null;
+            // }else{
+            //   $sumDums = null;
+            // }
+ 
+            // if($i-1 == !empty($temuDum[$i-1])){
+
+            //   array_push($dummyT, $stAbsen[$i-1]); 
+            // }else{
+            //   array_push($dummyT, null); 
+            // }
+
+            // $stAbsenDeal[] = in_array($i, $temuDum) ? 1 : null;
             // if(!empty($stAbsen[$i]) ){  
             //   array_push($stAbsenDeal, $stAbsen[$i]); 
             // }else{
             //   array_push($stAbsenDeal, null);
             // }
 
-          }   
+          // }   
+
+          // Inisialisasi hasil array
+          $stAbsenDeal = [];
+
+          // Iterasi untuk setiap pertemuan
+          for ($i = 1; $i <= 14; $i++) {
+              // Periksa apakah pertemuan terlaksana
+              if (in_array($i, $temuDum)) {
+                  // Menentukan nilai kehadiran berdasarkan indeks pada array stAbsen
+                  $nilai_kehadiran = isset($stAbsen[$i - 2]) ? $stAbsen[$i - 2] : null; 
+                  // $status = $nilai_kehadiran;
+
+                  // Menambahkan informasi kehadiran berdasarkan nilai stAbsen
+                  switch ($nilai_kehadiran) {
+                      case 0:
+                          $status = 0;
+                          break;
+                      case 1:
+                          $status = 1;
+                          break;
+                      case 2:
+                          $status = 2;
+                          break;
+                      default:
+                          $status = null;
+                          break;
+                  }
+              } else {
+                  // Jika pertemuan tidak terlaksana
+                  $status = null;
+              }
+
+              // Menambahkan status ke array hasil
+              // $stAbsenDeal["Pertemuan $i"] = $status;
+              array_push($stAbsenDeal, $status); 
+          }
            
           $countPersen = (count($val) / 14) * 100;
           $persen = round($countPersen, 2). '%';
@@ -464,8 +516,9 @@ class AkademikController extends Controller
             "name_mhs" => $key,
             "npm" => $npmData,   
 
-            // "stAbsen" => $stAbsen,
-            // "temuDum" => $temuDum, 
+            "stAbsen" => $stAbsen,
+            "temuDum" => $temuDum, 
+            "testing" => $dummyT,
 
             "status_absen" => $stAbsenDeal,
             "persentase" => $persen
@@ -475,9 +528,25 @@ class AkademikController extends Controller
         
         
         $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+        
+        $thisMonth = DATE("n");
+        $thisYear = DATE("Y");
+        $nextYear = date('Y', strtotime('+1 Year'));
+        $from = date(''.$thisYear.'-02-01');
+        $to = date(''.$nextYear.'-02-01'); 
+
+        if($thisMonth <= 9){   //GENAP
+          $stSemester = "GENAP";
+          $previousyear = $thisYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+        }else{    //GASAL
+          $stSemester = "GASAL";
+          $previousyear = $nextYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
+        } 
         // return response()->json([
         //   "status" => 200,
-        //   'groupRes' => $cekNewKurikulum['curr_code']
+        //   'data' => $thnAkademik
         // ]);
 
         $dataMatkul = Siak_Course::select([
@@ -486,7 +555,8 @@ class AkademikController extends Controller
           'siak_course.name',
           'siak_course.credit',
           'siak_course.semester',
-          'siak_lecture.academic_year',
+          // 'siak_lecture.academic_year',
+          DB::raw(' "'.$thnAkademik.'" as academic_year'),
           'siak_lecture.class',
           'siak_lecture.on_day',
         ])
@@ -499,7 +569,9 @@ class AkademikController extends Controller
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($dummy)
             ->addIndexColumn()  
-            
+            // ->addColumn('tahun_akademik', function ($row) {
+            //     return $thnAkademik;
+            // })
             ->with([
               'matkul' => $dataMatkul,
             ])
@@ -508,6 +580,7 @@ class AkademikController extends Controller
             return response()->json([
               "status" => 200,
               "message" => "success",
+              "tahun_akademik" => $thnAkademik,
               "matkul" => $dataMatkul,
               "data" => $dummy
             ], 200);
