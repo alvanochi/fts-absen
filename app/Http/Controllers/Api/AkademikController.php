@@ -455,8 +455,8 @@ class AkademikController extends Controller
 
           
           // Inisialisasi hasil array
-          $stAbsen = [1];
-          $temuDum = [5];
+          // $stAbsen = [1];
+          // $temuDum = [5];
           $stAbsenDeal = [];
 
           // Iterasi untuk setiap pertemuan
