@@ -157,6 +157,7 @@ class AbsensiMeetController extends Controller
         $coordinate = $request->input('coordinate');
         $code = $request->input('code');
         $st_absen = $request->input('status_absen');
+        $name_absen = $request->input('name_absen');
         if(!$token || !$coordinate || !$code){
             return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
         }
@@ -207,6 +208,7 @@ class AbsensiMeetController extends Controller
                     $absensi['code'] = $code;
                     $absensi['status_absen'] = $st_absen ? $st_absen : 0;
                     $absensi['coordinate_absen'] = $coordinate;
+                    $absensi['name_absen'] = $name_absen;
                     if($data->status_kelas == 0 && $stPosisi == false){       // Jika Kelas Offline dan Tidak Masuk radius 
                         return ResponseBuilder::success(200, "Anda diluar lokasi yang di tentukan", null); 
                     }else{
