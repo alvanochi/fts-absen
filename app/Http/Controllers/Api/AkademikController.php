@@ -484,21 +484,30 @@ class AkademikController extends Controller
               // Periksa apakah pertemuan terlaksana
               if (in_array($i, $temuDum)) {
                   // Menentukan nilai kehadiran berdasarkan indeks pada array stAbsen
-                  $nilai_kehadiran = isset($stAbsen[$i - 2]) ? $stAbsen[$i - 2] : null; 
+                  if(count($stAbsen) > 1){
+                    $dx = $i - 2;
+                  }else{
+                    $dx = $i - 1;
+                  }
+                  $nilai_kehadiran = isset($stAbsen[$dx]) ? $stAbsen[$dx] : null; 
                   // $status = $nilai_kehadiran;
 
                   // Menambahkan informasi kehadiran berdasarkan nilai stAbsen
                   switch ($nilai_kehadiran) {
                       case 0:
+                          // $status = ''.$nilai_kehadiran.' isinya 0';
                           $status = 0;
                           break;
                       case 1:
+                          // $status =  ''.$nilai_kehadiran.' isinya 1';
                           $status = 1;
                           break;
                       case 2:
+                          // $status =  ''.$nilai_kehadiran.' isinya 2';
                           $status = 2;
                           break;
                       default:
+                          // $status =  ''.$nilai_kehadiran.' isinya null';
                           $status = null;
                           break;
                   }
