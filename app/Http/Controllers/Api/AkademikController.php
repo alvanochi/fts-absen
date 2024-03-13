@@ -429,13 +429,58 @@ class AkademikController extends Controller
           // $groupRes[$val['npm']][] = $val;
         }
          
+
+
+        // $st_absen = [1, 0, 2, 1, 0, 1]; // Data kehadiran
+        // $pertemuan_terlaksana = [2, 5, 7, 8, 9 ,10]; // Pertemuan yang terlaksana
+        // $total_pertemuan = 14; // Total pertemuan
+
+        // // Inisialisasi hasil array
+        // $hasil_array = [];
+
+        // // Iterasi untuk setiap pertemuan
+        // for ($i = 1; $i <= $total_pertemuan; $i++) {
+        //   // Periksa apakah pertemuan terlaksana
+        //   if (in_array($i, $pertemuan_terlaksana)) {
+        //       // Menentukan nilai kehadiran berdasarkan indeks pada array st_absen
+        //       $status = "Tidak terlaksana";
+        //       $index_pertemuan = array_search($i, $pertemuan_terlaksana);
+        //       if (isset($st_absen[$index_pertemuan])) {
+        //           switch ($st_absen[$index_pertemuan]) {
+        //               case 0:
+        //                   $status = "Alfa";
+        //                   break;
+        //               case 1:
+        //                   $status = "Hadir";
+        //                   break;
+        //               case 2:
+        //                   $status = "Hybrid";
+        //                   break;
+        //           }
+        //       }
+        //   } else {
+        //       // Jika pertemuan tidak terlaksana
+        //       $status = "Tidak terlaksana";
+        //   }
+
+        //   // Menambahkan status ke array hasil
+        //   // $hasil_array["Pertemuan $i"] = $status;
+        //   array_push($hasil_array, $status); 
+        // }
+
         // return response()->json([
         //   "status" => 200,  
         //   // "real" => $groupRes, 
         //   "stAbsen" => $st_absen,
+        //   "pertemuan_terlaksana" => $pertemuan_terlaksana,
+        //   // "ceks" => 
         //   "data" => $hasil_array 
         // ]);
 
+
+
+
+        
         $dummy = array();
         foreach ($groupRes as $key=>$val) {
 
@@ -455,54 +500,36 @@ class AkademikController extends Controller
 
           
           // Inisialisasi hasil array
-          // $stAbsen = [1];
-          // $temuDum = [5];
-          $stAbsenDeal = [];
+          // $stAbsen = [1,2,1];
+          // $temuDum = [3,5,7];
+          // $stAbsenDeal = [];
 
-          // Iterasi untuk setiap pertemuan
           for ($i = 1; $i <= 14; $i++) {
-              // Periksa apakah pertemuan terlaksana
-              if (in_array($i, $temuDum)) {
-                  // Menentukan nilai kehadiran berdasarkan indeks pada array stAbsen
-                  if(count($stAbsen) > 1){
-                    if($temuDum[0] == 1){
-                      $dx = $i - 1;
-                    }else{
-                      $dx = $i - $temuDum[0];
+            // Periksa apakah pertemuan terlaksana
+            if (in_array($i, $temuDum)) {
+                // Menentukan nilai kehadiran berdasarkan indeks pada array stAbsen
+                $status = null;
+                $index_pertemuan = array_search($i, $temuDum);
+                if (isset($stAbsen[$index_pertemuan])) {
+                    switch ($stAbsen[$index_pertemuan]) {
+                        case 0:
+                            $status = 0;
+                            break;
+                        case 1:
+                            $status = 1;
+                            break;
+                        case 2:
+                            $status = 2;
+                            break;
                     }
-                  }else{
-                    $dx = $i - $temuDum[0];
-                  }
-                  $nilai_kehadiran = isset($stAbsen[$dx]) ? $stAbsen[$dx] : null; 
-                  // $status = $nilai_kehadiran;
-
-                  // Menambahkan informasi kehadiran berdasarkan nilai stAbsen
-                  switch ($nilai_kehadiran) {
-                      case 0:
-                          // $status = ''.$nilai_kehadiran.' isinya 0';
-                          $status = 0;
-                          break;
-                      case 1:
-                          // $status =  ''.$nilai_kehadiran.' isinya 1';
-                          $status = 1;
-                          break;
-                      case 2:
-                          // $status =  ''.$nilai_kehadiran.' isinya 2';
-                          $status = 2;
-                          break;
-                      default:
-                          // $status =  ''.$nilai_kehadiran.' isinya null';
-                          $status = null;
-                          break;
-                  }
-              } else {
-                  // Jika pertemuan tidak terlaksana
-                  $status = null;
-              }
-
-              // Menambahkan status ke array hasil
-              // $stAbsenDeal["Pertemuan $i"] = $status;
-              array_push($stAbsenDeal, $status); 
+                }
+            } else {
+                // Jika pertemuan tidak terlaksana
+                $status = null;
+            }
+  
+            // Menambahkan status ke array hasil 
+            array_push($stAbsenDeal, $status); 
           }
            
           $countPersen = (count($val) / 14) * 100;
