@@ -25,6 +25,9 @@ class PembelajaranController extends Controller
         $filterField = $request->input('filter');
         $filterValue = $request->input('filterValue');
 
+        $learning_done = $request->input('learning_done');
+        
+
         $data = Pembelajaran::select([
             'id',  
             'id_lecture',
@@ -32,10 +35,14 @@ class PembelajaranController extends Controller
             'id_matkul',
             'pertemuan', 
             'kelas',
+            'rps_dasar',
+            'rps_pelaksanaan', 
+            'nidn_dosen_pengganti',
             'status_kelas',  
+            'learning_done',
             'token',
             'deleted_at' 
-        ])->with('dosen', 'matkul'); 
+        ])->with('dosen', 'dosenPengganti', 'matkul'); 
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {
@@ -44,6 +51,10 @@ class PembelajaranController extends Controller
             }
         }
         $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
+        
+        if($learning_done == 'true'){
+            $data = $data->whereNotNull('learning_done'); 
+        }
         
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($data)

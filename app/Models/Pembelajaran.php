@@ -19,7 +19,11 @@ class Pembelajaran extends Model
         'id_matkul',
         'pertemuan', 
         'kelas',
+        'rps_dasar',
+        'rps_pelaksanaan', 
+        'nidn_dosen_pengganti',
         'status_kelas', 
+        'learning_done',
         'qrcode',
         'token',
         'deleted_at' 
@@ -38,6 +42,11 @@ class Pembelajaran extends Model
     public function dosen()
     {
         return $this->belongsTo(Simpeg_Pegawai::class, 'nik_dosen', 'nip');
+    }
+
+    public function dosenPengganti()
+    {
+        return $this->belongsTo(Simpeg_Pegawai::class, 'nidn_dosen_pengganti', 'nip');
     }
 
     public function matkul()
