@@ -451,10 +451,24 @@ class AkademikController extends Controller
               'pembelajaran'  => function ($exs) {
                 $exs->select('id', 'id_lecture', 'status_kelas');
               }
-            ]); 
-          },
-          // 'lecture.matkul',
-          // 'lecture.pembelajaranDosen'
+            ]);   
+
+            // foreach ($query->get()->toArray() as $key) { 
+               
+            //   if(count($key['pembelajaran']) > 0){ 
+            //     $countPersen = (count($key['pembelajaran']) / 14) * 100;
+            //     $persen = round($countPersen, 2). '%';
+            //   } else { 
+            //     $persen = "0%";
+            //   }
+            
+
+            //   $hasilModif[] = array(  
+            //     "persentase" => $persen
+            //   );
+            // }
+            // return $hasilModif;
+          }
         ])
         ->whereNotNull('nik')
         ->where('nik', '!=', '')
@@ -470,10 +484,59 @@ class AkademikController extends Controller
             }
         } 
         $dummyDosen = $dataDosen->get()->toArray(); 
+
+        foreach ($dummyDosen as $key) { 
+          $hasil_arrayCount = [];
+          $ttl_matkul = 0;
+          if(count($key['lecture']) > 0){
+            $ttl_matkul = count($key['lecture']);
+            foreach ($key['lecture'] as $val) {
+
+              $hasil_array = [];
+              if(count($val['pembelajaran']) > 0){ 
+                    $countPersen = (count($val['pembelajaran']) / 14) * 100;
+                    array_push($hasil_array, $countPersen); 
+                    $hasil_arrayCount[] = $hasil_array;
+                    // $persen = $hasil_array;
+                    // $persen = "masuk";
+              } else { 
+                 
+              } 
+
+            } 
+
+          }else{
+            $persen = "01%";
+          }
+
+          // Flatten the nested array
+          $flattened = array_merge(...$hasil_arrayCount);
+
+          // Calculate the sum
+          $totalSum = array_sum($flattened);
+
+          // Calculate the average
+          $average = $totalSum / $ttl_matkul;
+
+          
+          $hasilModif[] = array(  
+            // "code" => $key['code'], 
+            // "faculty_code" => $key['faculty_code'],
+            // "nik" => $key['nik'],
+            "name" => $key['name'],
+            // "status" => $key['status'], 
+            // "functional_title" => $key['functional_title'],
+            // "sex" => $key['sex'],
+            // "religion" => $key['religion'], 
+            "ttl_matkul" => $ttl_matkul,
+            "persentase" => $average
+          );
+        }
+
         return response()->json([
           "status" => 200,
-          "thnAkademik" => $thnAkademik,
-          "data" => $dummyDosen
+          "hasilModif" => $hasilModif
+          // "data" => $dummyDosen
         ]);
 
         
