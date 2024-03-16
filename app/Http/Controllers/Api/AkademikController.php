@@ -440,12 +440,20 @@ class AkademikController extends Controller
             } 
             $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
             // $asa = "wasa";
-            $query->select('id', DB::raw('"'.$thnAkademik.'" as ido'), 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
+            $query->select('id', 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
             $query->where('academic_year', $thnAkademik);
             $query->where('curr_code', $cekNewKurikulum['curr_code']);
-            
             $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+            $query->with([
+              'matkul'  => function ($exx) {
+                $exx->select('code', 'curr_code', 'name', 'credit', 'semester');
+              },
+              'pembelajaran'  => function ($exs) {
+                $exs->select('id', 'id_lecture', 'status_kelas');
+              }
+            ]); 
           },
+          // 'lecture.matkul',
           // 'lecture.pembelajaranDosen'
         ])
         ->whereNotNull('nik')
