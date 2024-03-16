@@ -69,6 +69,7 @@ Route::post('/register', 'Api\AuthController@register');
 
 
 Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
+Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');  
 Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
 
 Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 

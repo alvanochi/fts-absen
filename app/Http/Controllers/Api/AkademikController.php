@@ -12,6 +12,7 @@ use App\Models\Siak_Class;
 use App\Models\Siak_Student;
 use App\Models\Siak_Student_Snapshot;
 use App\Models\Siak_Lecture;
+use App\Models\Siak_Lecturer;
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
 use App\Models\Siak_Course;
@@ -380,6 +381,95 @@ class AkademikController extends Controller
           
           return ResponseBuilder::success(200, "success", $hasilModif);
         }
+      } catch (\Exception $e) {
+        return ResponseBuilder::success(200, "error", null); 
+      }
+    }
+
+    public function listDosenPertemuan(Request $request){
+      try {
+        $filterField = $request->input('filter');
+        $filterValue = $request->input('filterValue');
+ 
+        $academic_year = $request->input('academic_year'); 
+
+        $thisMonth = DATE("n");
+        $thisYear = DATE("Y");
+        $nextYear = date('Y', strtotime('+1 Year'));
+        $from = date(''.$thisYear.'-02-01');
+        $to = date(''.$nextYear.'-02-01'); 
+
+        if($thisMonth <= 9){   //GENAP
+          $stSemester = "GENAP";
+          $previousyear = $thisYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+        }else{    //GASAL
+          $stSemester = "GASAL";
+          $previousyear = $nextYear -1;
+          $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
+        } 
+
+        $dataDosen = Siak_Lecturer::select([
+          'code', 
+          'faculty_code', 
+          'nik', 
+          'name', 
+          'status', 
+          'functional_title', 
+          'sex', 
+          'religion',
+          'active'
+        ])
+        ->with([
+          // 'lecture',
+          'lecture' => function ($query) {
+            $thisMonth = DATE("n");
+            $thisYear = DATE("Y");
+            $nextYear = date('Y', strtotime('+1 Year'));
+            $from = date(''.$thisYear.'-02-01');
+            $to = date(''.$nextYear.'-02-01'); 
+
+            if($thisMonth <= 9){   //GENAP
+              $stSemester = "GENAP";
+              $previousyear = $thisYear -1;
+              $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+            }else{    //GASAL
+              $stSemester = "GASAL";
+              $previousyear = $nextYear -1;
+              $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
+            } 
+            $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+            // $asa = "wasa";
+            $query->select('id', DB::raw('"'.$thnAkademik.'" as ido'), 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
+            $query->where('academic_year', $thnAkademik);
+            $query->where('curr_code', $cekNewKurikulum['curr_code']);
+            
+            $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+          },
+          // 'lecture.pembelajaranDosen'
+        ])
+        ->whereNotNull('nik')
+        ->where('nik', '!=', '')
+        ->where('faculty_code', 'FT')
+        ->where('active', 'Y');
+        $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
+
+        if ($filterField && $filterValue) {
+            foreach ($filterField as $key => $value) {
+                if ($filterField[$key] != null || $filterValue[$key] != null) {
+                  $dataDosen->where($value, '=', $filterValue[$key]);
+                }
+            }
+        } 
+        $dummyDosen = $dataDosen->get()->toArray(); 
+        return response()->json([
+          "status" => 200,
+          "thnAkademik" => $thnAkademik,
+          "data" => $dummyDosen
+        ]);
+
+        
+ 
       } catch (\Exception $e) {
         return ResponseBuilder::success(200, "error", null); 
       }
