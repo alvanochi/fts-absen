@@ -509,14 +509,18 @@ class AkademikController extends Controller
             $persen = "01%";
           }
 
-          // Flatten the nested array
-          $flattened = array_merge(...$hasil_arrayCount);
+          if(count($hasil_arrayCount) > 0){
+            // Flatten the nested array
+            $flattened = array_merge(...$hasil_arrayCount);
 
-          // Calculate the sum
-          $totalSum = array_sum($flattened);
+            // Calculate the sum
+            $totalSum = array_sum($flattened);
 
-          // Calculate the average
-          $average = $totalSum / $ttl_matkul;
+            // Calculate the average 
+            $average = $totalSum / intval($ttl_matkul);
+          }else{
+            $average = 0;
+          }
 
           
           $hasilModif[] = array(  
@@ -528,15 +532,15 @@ class AkademikController extends Controller
             // "functional_title" => $key['functional_title'],
             // "sex" => $key['sex'],
             // "religion" => $key['religion'], 
-            "ttl_matkul" => $ttl_matkul,
-            "persentase" => $average
+            // "hasil_arrayCount" => $hasil_arrayCount,
+            // "ttl_matkul" => $ttl_matkul,
+            "persentase" => round($average, 2). '%'
           );
         }
 
         return response()->json([
           "status" => 200,
-          "hasilModif" => $hasilModif
-          // "data" => $dummyDosen
+          "hasilModif" => $hasilModif 
         ]);
 
         
