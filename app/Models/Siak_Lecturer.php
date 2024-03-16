@@ -20,6 +20,11 @@ class Siak_Lecturer extends Model
         return $this->hasMany(Siak_Lecture::class, 'lecturer_code', 'code');
     }
 
+    public function dosen()
+    {
+        return $this->belongsTo(Simpeg_Pegawai::class, 'nik', 'nip');
+    }
+
     public static function getTableColumns()
     {
         return DB::getSchemaBuilder()->getColumnListing('siak_lecturer');

@@ -29,12 +29,7 @@ class Siak_Lecture extends Model
     public function pembelajaran()
     {
         return $this->hasMany(Pembelajaran::class,  'id_lecture', 'id');
-    }  
-
-    public function pembelajaranDosen()
-    {
-        return $this->hasMany(Pembelajaran::class,  'id', 'id');
-    }  
+    }   
     
     public function dosen()
     {
