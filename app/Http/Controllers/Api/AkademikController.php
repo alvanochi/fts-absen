@@ -389,12 +389,7 @@ class AkademikController extends Controller
     public function listDosenPertemuan(Request $request){
       try {
         $filterField = $request->input('filter');
-        $filterValue = $request->input('filterValue');
- 
-        $semester = $request->input('semester'); 
-        if(!$semester){ 
-          return ResponseBuilder::success(200, "error, semester GASAL/GENAP harus di input", null); 
-        }
+        $filterValue = $request->input('filterValue'); 
 
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
@@ -570,12 +565,22 @@ class AkademikController extends Controller
           }
         }
 
-        return response()->json([
-          "status" => 200,
-          // "data" => $dummyDosen,
-          "hasilModif" => $hasilModif 
-        ]);
-
+        
+        if ($request->input('dataTable') == true) {
+            return $dummyTable = Datatables::of($hasilModif)
+            ->addIndexColumn()  
+            // ->addColumn('qr_code', function ($row) {
+            //     return QrCode::generate(
+            //         $row['token'],
+            //     );
+            // })
+            ->make(true);
+        }else{ 
+          return response()->json([
+            "status" => 200, 
+            "data" => $hasilModif 
+          ]);
+        }
         
  
       } catch (\Exception $e) {
