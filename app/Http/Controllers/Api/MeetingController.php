@@ -37,6 +37,7 @@ class MeetingController extends Controller
             'notulen',  
             'status_ruangan',  
             'token',
+            'created_at', 
             'deleted_at' 
         ]);
         // ->with('dosen', 'matkul'); 

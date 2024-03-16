@@ -41,6 +41,7 @@ class PembelajaranController extends Controller
             'status_kelas',  
             'learning_done',
             'token',
+            'created_at', 
             'deleted_at' 
         ])->with('dosen', 'dosenPengganti', 'matkul'); 
         if ($filterField && $filterValue) {

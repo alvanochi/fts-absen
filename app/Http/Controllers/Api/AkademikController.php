@@ -269,6 +269,7 @@ class AkademikController extends Controller
             'from_time',
             'until_time', 
             'classroom', 
+            'created_at', 
         ])
         ->with('pembelajaran', 'matkul', 'lecturer') 
         // ->with([
