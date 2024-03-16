@@ -268,8 +268,8 @@ class AkademikController extends Controller
             'on_day',
             'from_time',
             'until_time', 
-            'classroom', 
-            'created_at', 
+            'classroom' 
+            // 'created_at'
         ])
         ->with('pembelajaran', 'matkul', 'lecturer') 
         // ->with([
@@ -540,9 +540,9 @@ class AkademikController extends Controller
             "name_mhs" => $key,
             "npm" => $npmData,   
 
-            "stAbsen" => $stAbsen,
-            "temuDum" => $temuDum, 
-            "testing" => $dummyT,
+            // "stAbsen" => $stAbsen,
+            // "temuDum" => $temuDum, 
+            // "testing" => $dummyT,
 
             "status_absen" => $stAbsenDeal,
             "persentase" => $persen
