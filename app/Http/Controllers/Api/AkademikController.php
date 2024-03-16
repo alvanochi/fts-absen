@@ -496,17 +496,10 @@ class AkademikController extends Controller
               if(count($val['pembelajaran']) > 0){ 
                     $countPersen = (count($val['pembelajaran']) / 14) * 100;
                     array_push($hasil_array, $countPersen); 
-                    $hasil_arrayCount[] = $hasil_array;
-                    // $persen = $hasil_array;
-                    // $persen = "masuk";
-              } else { 
-                 
-              } 
+                    $hasil_arrayCount[] = $hasil_array; 
+              }
 
-            } 
-
-          }else{
-            $persen = "01%";
+            }  
           }
 
           if(count($hasil_arrayCount) > 0){
@@ -532,7 +525,7 @@ class AkademikController extends Controller
             // "functional_title" => $key['functional_title'],
             // "sex" => $key['sex'],
             // "religion" => $key['religion'], 
-            // "hasil_arrayCount" => $hasil_arrayCount,
+            "hasil_arrayCount" => $hasil_arrayCount,
             // "ttl_matkul" => $ttl_matkul,
             "persentase" => round($average, 2). '%'
           );
