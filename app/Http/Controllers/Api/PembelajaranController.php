@@ -86,74 +86,73 @@ class PembelajaranController extends Controller
 
     public function cekPertemuan(Request $request)
     { 
-        date_default_timezone_set('Asia/Jakarta'); 
-        $result = [];  
-        $thisMonth = DATE('m');
-        $thisYear = DATE('Y'); 
-        $nextYear = date('Y', strtotime('+1 Year'));
-        if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
-            return ResponseBuilder::success(200, "Error, Lecture atau Dosen atau Matkul belum terisi", null);
-        } 
+        // date_default_timezone_set('Asia/Jakarta'); 
+        // $result = [];  
+        // $thisMonth = DATE('m');
+        // $thisYear = DATE('Y'); 
+        // $nextYear = date('Y', strtotime('+1 Year'));
+        // if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
+        //     return ResponseBuilder::success(200, "Error, Lecture atau Dosen atau Matkul belum terisi", null);
+        // } 
 
-        $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
-                            ->where('id_lecture', $request->input('id_lecture'))
-                            ->where('id_matkul', $request->input('id_matkul'))
-                            ->where('kelas', $request->input('kelas'));
-        $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
+        // $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
+        // $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
+        //                     ->where('id_lecture', $request->input('id_lecture'))
+        //                     ->where('id_matkul', $request->input('id_matkul'))
+        //                     ->where('kelas', $request->input('kelas'));
+        // $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
 
-        if($prosesPertemuan->get()->toArray()){
+        // if($prosesPertemuan->get()->toArray()){
 
-            $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
-            $tglPenetapan = ''.$nextYear.'-02-01'; 
-            $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
-            $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
-            if ($convertTgl2 < $convertTgl1) {
-                // $countPertemuan = 1;
-            }else{
-                $countPertemuan = 1;
-            } 
-        } 
+        //     $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
+        //     $tglPenetapan = ''.$nextYear.'-02-01'; 
+        //     $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
+        //     $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
+        //     if ($convertTgl2 < $convertTgl1) {
+        //         // $countPertemuan = 1;
+        //     }else{
+        //         $countPertemuan = 1;
+        //     } 
+        // } 
 
-        $setPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
-        $countPertemuan = $setPertemuan + 1;
-        // $prosesPertemuan = $prosesPertemuan->get();
+        // $setPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
+        // $countPertemuan = $setPertemuan + 1;
+        // // $prosesPertemuan = $prosesPertemuan->get();
 
-        if($countPertemuan == 15){
-            $countPertemuan = 1;
-        } 
+        // if($countPertemuan == 15){
+        //     $countPertemuan = 1;
+        // } 
         
-        // $result['pertemuan'] = $prosesPertemuan;
+        // // $result['pertemuan'] = $prosesPertemuan;
  
-        $get = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [
+        $getData = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [
             'filter[]' => "course_code",
             'filterValue[]' => $request->input('id_matkul')
         ]);
-        $dataCpl = json_decode($get->body(), true);
+        $dataCpl = json_decode($getData->body(), true);
+        return response()->json($dataCpl, 200);
 
-        $dummyCpl = collect($dataCpl); 
-        if($dummyCpl['status'] == 200){
+        // $dummyCpl = collect($dataCpl); 
+        // if($dummyCpl['status'] == 200){
 
-            if($dummyCpl['data'][0]['pertemuan_belajar'] != null){
-                $dummyEx = $dummyCpl['data'][0];
-                $finisCpl =  $dummyCpl['data'][0]['pertemuan_belajar']['p'.$countPertemuan.''];
-            }
-        }else{
-            $finisCpl = null;
-        }
+        //     if($dummyCpl['data'][0]['pertemuan_belajar'] != null){
+        //         $dummyEx = $dummyCpl['data'][0];
+        //         $finisCpl =  $dummyCpl['data'][0]['pertemuan_belajar']['p'.$countPertemuan.''];
+        //     }
+        // }else{
+        //     $finisCpl = null;
+        // }
 
-        return response()->json([
-            "status" => 200,
-            "message" => "Berhasil", 
-            "data" => array(  
-                "pertemuan_ke" => $countPertemuan,
-                "rps_dasar" => $finisCpl,
-                "rps_pelaksanaan" => $finisCpl,
-                "pertemuan_cpl" => $dummyEx
-            )
-        ], 200);
-
-        // return ResponseBuilder::success(200, "success", $prosesPertemuan); 
+        // return response()->json([
+        //     "status" => 200,
+        //     "message" => "Berhasil", 
+        //     "data" => array(  
+        //         "pertemuan_ke" => $countPertemuan,
+        //         "rps_dasar" => $finisCpl,
+        //         "rps_pelaksanaan" => $finisCpl,
+        //         "pertemuan_cpl" => $dummyEx
+        //     )
+        // ], 200); 
     }
 
     public function store(Request $request)
