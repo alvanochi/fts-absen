@@ -125,9 +125,8 @@ class PembelajaranController extends Controller
         
         // // $result['pertemuan'] = $prosesPertemuan;
  
-        $getData = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [
-            'filter[]' => "course_code",
-            'filterValue[]' => $request->input('id_matkul')
+        $getData = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [ 
+            'course_code' => $request->input('id_matkul')
         ]);
         $dataCpl = json_decode($getData->body(), true);
         return response()->json($dataCpl, 200);
