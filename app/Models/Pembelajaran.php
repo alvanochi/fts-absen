@@ -22,6 +22,7 @@ class Pembelajaran extends Model
         'rps_dasar',
         'rps_pelaksanaan', 
         'nidn_dosen_pengganti',
+        'dosen_tamu',
         'status_kelas', 
         'learning_done',
         'qrcode',

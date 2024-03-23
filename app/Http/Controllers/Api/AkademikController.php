@@ -104,7 +104,7 @@ class AkademikController extends Controller
         $previousyear = $thisYear -1;
 
         $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
-        if($thisMonth <= 6){   //GENAP
+        if($thisMonth <= 9){   //GENAP
           $stSemester = "GENAP";
         }else{    //GASAL
           $stSemester = "GASAL";
