@@ -131,10 +131,12 @@ class PembelajaranController extends Controller
         ->where('course_code', $request->input('id_matkul'))
         ->with('pertemuanBelajar')->first();  
 
-        $cplMatkul = collect($cplMatkul);
+        // return response()->json($cplMatkul, 200); 
 
-        if($cplMatkul != null){ 
-            if($cplMatkul['pertemuan_belajar'] != null){
+        
+        if($cplMatkul){ 
+            $cplMatkul = collect($cplMatkul);
+            if($cplMatkul['pertemuan_belajar']){
                 $dummyEx = $cplMatkul;
                 $finisCpl =  $cplMatkul['pertemuan_belajar']['p'.$countPertemuan.''];
             }else{
@@ -142,6 +144,7 @@ class PembelajaranController extends Controller
                 $finisCpl = null;
             }
         }else{
+            $dummyEx = null;
             $finisCpl = null;
         }
 
