@@ -14,6 +14,7 @@ use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
@@ -91,7 +92,7 @@ class PembelajaranController extends Controller
         $thisYear = DATE('Y'); 
         $nextYear = date('Y', strtotime('+1 Year'));
         if(!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')){
-            return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
+            return ResponseBuilder::success(200, "Error, Lecture atau Dosen atau Matkul belum terisi", null);
         } 
 
         $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
@@ -108,28 +109,47 @@ class PembelajaranController extends Controller
             $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
             $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
             if ($convertTgl2 < $convertTgl1) {
-                // $prosesPertemuan = 1;
+                // $countPertemuan = 1;
             }else{
-                $prosesPertemuan = 1;
+                $countPertemuan = 1;
             } 
         } 
 
-        $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
-        $prosesPertemuan = $prosesPertemuan + 1;
+        $setPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
+        $countPertemuan = $setPertemuan + 1;
         // $prosesPertemuan = $prosesPertemuan->get();
 
-        if($prosesPertemuan == 15){
-            $prosesPertemuan = 1;
+        if($countPertemuan == 15){
+            $countPertemuan = 1;
+        } 
+        
+        // $result['pertemuan'] = $prosesPertemuan;
+ 
+        $get = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [
+            'filter[]' => "course_code",
+            'filterValue[]' => $request->input('id_matkul')
+        ]);
+        $dataCpl = json_decode($get->body(), true);
+
+        $dummyCpl = collect($dataCpl); 
+        if($dummyCpl['status'] == 200){
+
+            if($dummyCpl['data'][0]['pertemuan_belajar'] != null){
+                $dummyEx = $dummyCpl['data'][0];
+                $finisCpl =  $dummyCpl['data'][0]['pertemuan_belajar']['p'.$countPertemuan.''];
+            }
+        }else{
+            $finisCpl = null;
         }
-        
-        
-        $result['pertemuan'] = $prosesPertemuan;
 
         return response()->json([
             "status" => 200,
             "message" => "Berhasil", 
             "data" => array(  
-                "pertemuan_ke" => $prosesPertemuan
+                "pertemuan_ke" => $countPertemuan,
+                "rps_dasar" => $finisCpl,
+                "rps_pelaksanaan" => $finisCpl,
+                "pertemuan_cpl" => $dummyEx
             )
         ], 200);
 
