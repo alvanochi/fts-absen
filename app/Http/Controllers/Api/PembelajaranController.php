@@ -41,6 +41,7 @@ class PembelajaranController extends Controller
             'rps_pelaksanaan', 
             'nidn_dosen_pengganti',
             'dosen_tamu',
+            'npm_komti',
             'status_kelas',  
             'learning_done',
             'token',

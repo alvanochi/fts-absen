@@ -23,6 +23,7 @@ class Pembelajaran extends Model
         'rps_pelaksanaan', 
         'nidn_dosen_pengganti',
         'dosen_tamu',
+        'npm_komti',
         'status_kelas', 
         'learning_done',
         'qrcode',
