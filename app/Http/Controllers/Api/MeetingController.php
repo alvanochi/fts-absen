@@ -97,14 +97,7 @@ class MeetingController extends Controller
             // $dummy['pertemuan'] = $dataUser[0]['pertemuan'];
             // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
             
-            if(count($dataUser) > 0){
-
-                return response()->json([
-                    "status" => 200,
-                    "message" => "Berhasil", 
-                    "data" => $dataUser[0],
-                    // "data_tias" => $collectGet
-                ], 200);
+            if(count($dataUser) > 0){ 
 
                 $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
                 ]);
