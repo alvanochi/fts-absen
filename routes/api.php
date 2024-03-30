@@ -43,11 +43,12 @@ Route::post('/register', 'Api\AuthController@register');
 
 // for Absensi mahasiswa
  
-// for absensi Jadwal meeting
 
+// for absensi Jadwal meeting
     Route::get('/meeting/cek-pertemuan', 'Api\MeetingController@cekPertemuan');  
     Route::post('/meeting/store', 'Api\MeetingController@store');  
-    Route::get('/meeting', 'Api\MeetingController@index');  
+    Route::get('/meeting', 'Api\MeetingController@index');   
+    Route::get('/meeting/find', 'Api\MeetingController@find');  
     Route::post('/meeting/update/{id}', 'Api\MeetingController@update');  
     Route::delete('/meeting/delete/{id}', 'Api\MeetingController@delete');   
 
@@ -64,28 +65,21 @@ Route::post('/register', 'Api\AuthController@register');
     Route::get('/absensi-meeting/download-qr', 'Api\AbsensiMeetController@downloadQr'); 
     Route::post('/absensi-meeting/update/{id}', 'Api\AbsensiMeetController@update');  
     Route::delete('/absensi-meeting/delete/{id}', 'Api\AbsensiMeetController@delete'); 
-
 // for absensi Jadwal meeting
 
+    
 
-Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
-Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');  
-Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
+    Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
+    Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');  
+    Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
 
-Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
-Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
-Route::get('/kelas', 'Api\AkademikController@kelas');   
+    Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
+    Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
+    Route::get('/kelas', 'Api\AkademikController@kelas');   
 
 Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('/logout', 'Api\AuthController@logout');
     Route::get('/get_user', 'Api\AuthController@get_user');  
-    Route::get('/refresh', 'Api\AuthController@refresh');  
-
-
-     
-    
-
-    
-    
+    Route::get('/refresh', 'Api\AuthController@refresh');   
     
 });

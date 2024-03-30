@@ -14,6 +14,7 @@ use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 
 use App\Models\Meeting;
 
@@ -50,7 +51,8 @@ class MeetingController extends Controller
             }
         }
         $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
-        
+
+
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($data)
             ->addIndexColumn()  
@@ -75,6 +77,53 @@ class MeetingController extends Controller
             return ResponseBuilder::success(200, "success", $dummyAll);
         }
     }  
+
+    public function find(Request $request)
+    {
+        if ($request->input() != null) {
+
+            foreach (Meeting::getTableColumns() as $key) {
+                if ($request->input($key)) {
+                    $data[$key] =  $request->input($key);
+                }
+            }
+            $dataUser =  Meeting::where($data)->get()->toArray(); 
+            // $dummy['id'] = $dataUser[0]['id'];
+            // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
+            // $dummy['nm_pengundang'] = $dataUser[0]['nm_pengundang'];
+            // $dummy['nm_kegiatan'] = $dataUser[0]['nm_kegiatan'];
+            // $dummy['ruangan'] = $dataUser[0]['ruangan'];
+            // $dummy['bukti_foto'] = $dataUser[0]['bukti_foto'];
+            // $dummy['pertemuan'] = $dataUser[0]['pertemuan'];
+            // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
+            
+
+            $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [
+                // 'menu' => $request->menu ? $request->menu : 'matakuliah', 
+            ]);
+            $dataGet = json_decode($getTias->body(), true);
+            if(count($dataGet) > 0 && count($dataUser) > 0){   
+                $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']);
+                // $modif = array_push($dataUser[0], $collectGet);
+                
+                return response()->json([
+                    "status" => 200,
+                    "message" => "Berhasil", 
+                    "data" => $dataUser[0],
+                    "data_tias" => $collectGet
+                ], 200);
+            }else{
+                return response()->json([
+                    "status" => 400,
+                    "message" => "GAGAL", 
+                    "data" => null
+                ], 200);
+            }
+            return ResponseBuilder::success(200, "success", $dataUser);
+        } else {
+            return ResponseBuilder::success(404, "error", "");
+        }
+    } 
 
     public function cekPertemuan(Request $request)
     { 
