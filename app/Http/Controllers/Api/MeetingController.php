@@ -88,44 +88,45 @@ class MeetingController extends Controller
                 }
             }
             $dataUser =  Meeting::where($data)->get()->toArray(); 
-            // $dummy['id'] = $dataUser[0]['id'];
-            // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
-            // $dummy['nm_pengundang'] = $dataUser[0]['nm_pengundang'];
-            // $dummy['nm_kegiatan'] = $dataUser[0]['nm_kegiatan'];
-            // $dummy['ruangan'] = $dataUser[0]['ruangan'];
-            // $dummy['bukti_foto'] = $dataUser[0]['bukti_foto'];
-            // $dummy['pertemuan'] = $dataUser[0]['pertemuan'];
-            // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
             
-            if(count($dataUser) > 0){ 
+            $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
+            ]);
+            $dataGet = json_decode($getTias->body(), true);
+            return response()->json([
+                "status" => 200,
+                "message" => "Berhasil", 
+                "data" => $dataGet
+            ], 200);
+            
+            // if(count($dataUser) > 0){ 
 
-                $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
-                ]);
-                $dataGet = json_decode($getTias->body(), true);
-                if(count($dataGet) > 0){   
-                    $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']); 
+            //     $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
+            //     ]);
+            //     $dataGet = json_decode($getTias->body(), true);
+            //     if(count($dataGet) > 0){   
+            //         $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']); 
                     
-                    return response()->json([
-                        "status" => 200,
-                        "message" => "Berhasil", 
-                        "data" => $dataUser[0],
-                        "data_tias" => $collectGet
-                    ], 200);
-                }else{
-                    return response()->json([
-                        "status" => 400,
-                        "message" => "GAGAL", 
-                        "data" => null
-                    ], 200);
-                }
-            }else{
-                return response()->json([
-                    "status" => 400,
-                    "message" => "GAGAL", 
-                    "data" => null
-                ], 200);
-            }
-            return ResponseBuilder::success(200, "success", $dataUser);
+            //         return response()->json([
+            //             "status" => 200,
+            //             "message" => "Berhasil", 
+            //             "data" => $dataUser[0],
+            //             "data_tias" => $collectGet
+            //         ], 200);
+                    
+            //     }else{
+            //         return response()->json([
+            //             "status" => 400,
+            //             "message" => "GAGAL", 
+            //             "data" => null
+            //         ], 200);
+            //     }
+            // }else{
+            //     return response()->json([
+            //         "status" => 400,
+            //         "message" => "Tidak Ada Data", 
+            //         "data" => null
+            //     ], 200);
+            // } 
         } else {
             return ResponseBuilder::success(404, "error", "");
         }
