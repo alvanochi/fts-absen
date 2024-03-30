@@ -26,6 +26,7 @@ class MeetingController extends Controller
 
         $data = Meeting::select([
             'id',   
+            'id_group_tias',
             'nm_pengundang', 
             'nm_kegiatan', 
             'ruangan', 
