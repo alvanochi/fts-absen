@@ -97,21 +97,34 @@ class MeetingController extends Controller
             // $dummy['pertemuan'] = $dataUser[0]['pertemuan'];
             // $dummy['id_group_tias'] = $dataUser[0]['id_group_tias'];
             
+            if(count($dataUser) > 0){
 
-            $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [
-                // 'menu' => $request->menu ? $request->menu : 'matakuliah', 
-            ]);
-            $dataGet = json_decode($getTias->body(), true);
-            if(count($dataGet) > 0 && count($dataUser) > 0){   
-                $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']);
-                // $modif = array_push($dataUser[0], $collectGet);
-                
                 return response()->json([
                     "status" => 200,
                     "message" => "Berhasil", 
                     "data" => $dataUser[0],
-                    "data_tias" => $collectGet
+                    // "data_tias" => $collectGet
                 ], 200);
+
+                $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
+                ]);
+                $dataGet = json_decode($getTias->body(), true);
+                if(count($dataGet) > 0){   
+                    $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']); 
+                    
+                    return response()->json([
+                        "status" => 200,
+                        "message" => "Berhasil", 
+                        "data" => $dataUser[0],
+                        "data_tias" => $collectGet
+                    ], 200);
+                }else{
+                    return response()->json([
+                        "status" => 400,
+                        "message" => "GAGAL", 
+                        "data" => null
+                    ], 200);
+                }
             }else{
                 return response()->json([
                     "status" => 400,
