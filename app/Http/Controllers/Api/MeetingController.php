@@ -89,7 +89,7 @@ class MeetingController extends Controller
             }
             $dataUser =  Meeting::where($data)->get()->toArray(); 
             
-            $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all', [ 
+            $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all?filter[]=id&filterValue[]=1', [ 
             ]);
             $dataGet = json_decode($getTias->body(), true);
             return response()->json([
