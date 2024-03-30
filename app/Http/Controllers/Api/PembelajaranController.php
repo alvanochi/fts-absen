@@ -42,6 +42,7 @@ class PembelajaranController extends Controller
             'nidn_dosen_pengganti',
             'dosen_tamu',
             'npm_komti',
+            'name_komti',
             'status_kelas',  
             'learning_done',
             'token',
