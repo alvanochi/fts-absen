@@ -82,12 +82,12 @@ class MeetingController extends Controller
     {
         if ($request->input() != null) {
 
-            foreach (Meeting::getTableColumns() as $key) {
-                if ($request->input($key)) {
-                    $data[$key] =  $request->input($key);
-                }
-            }
-            $dataUser =  Meeting::where($data)->get()->toArray(); 
+            // foreach (Meeting::getTableColumns() as $key) {
+            //     if ($request->input($key)) {
+            //         $data[$key] =  $request->input($key);
+            //     }
+            // }
+            // $dataUser =  Meeting::where($data)->get()->toArray(); 
             
             $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all?filter[]=id&filterValue[]=1', [ 
             ]);
