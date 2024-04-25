@@ -99,13 +99,21 @@ class MeetingController extends Controller
             
             if(count($dataUser) > 0){ 
 
-                $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all?filter%5B%5D=id&filterValue%5B%5D=1',[
+                $getTias = Http::get('https://api-tias.ti.ft.uika-bogor.ac.id/voting/group-users-all',[
                     'filter[]' => 'id', 
                     'filterValue[]' => $dataUser[0]['id_group_tias']
                 ]);
                 $dataGet = json_decode($getTias->body(), true);
+                // $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']); 
+
+                // return response()->json([
+                //     "status" => 200,
+                //     "message" => "Berhasil", 
+                //     "data" => $dataUser[0],
+                //     "data_tias" => $collectGet
+                // ], 200);
+
                 if(count($dataGet) > 0){   
-                    // $collectGet = collect($dataGet)->where('id', $dataUser[0]['id_group_tias']); 
                     
                     return response()->json([
                         "status" => 200,
