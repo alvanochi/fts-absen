@@ -193,9 +193,9 @@ class AbsensiMeetController extends Controller
         if (isset($data)) { 
             $time = time();
 
-            $timeCreate = strtotime($data->created_at);
-            $date = strtotime('2 hours', $timeCreate);
-            if ($time < $date) {   
+            // $timeCreate = strtotime($data->created_at);
+            // $date = strtotime('2 hours', $timeCreate);
+            // if ($time < $date) {   
                 $cekAbsen = AbsensiMeet::where('id_meeting', $data->id);
                 $cekAbsen = $cekAbsen->where('code', $code)->first();
 
@@ -222,9 +222,9 @@ class AbsensiMeetController extends Controller
                     }
                     
                 }
-            } else {  
-                return ResponseBuilder::success(200, "QR telah melewati batas waktu", null);  
-            }
+            // } else {  
+            //     return ResponseBuilder::success(200, "QR telah melewati batas waktu", null);  
+            // }
         } else {
             return ResponseBuilder::success(200, "QR tidak di temukan", null);   
         }
