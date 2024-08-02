@@ -110,7 +110,7 @@ class AkademikController extends Controller
           $stSemester = "GASAL";
         } 
 
-        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first(); 
+        // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first(); 
 
         $data = Siak_Lecture::select([
             'id',  
@@ -127,8 +127,8 @@ class AkademikController extends Controller
             'classroom', 
         ])
         ->with('matkul', 'lecturer') 
-        ->where('curr_code', $cekNewKurikulum['curr_code']) 
-        ->where('siak_lecture.department_code', 'FT_TI') 
+        // ->where('curr_code', $cekNewKurikulum['curr_code']) 
+        // ->where('siak_lecture.department_code', 'FT_TI') 
         ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), curr_code DESC, course_code ASC, from_time DESC, until_time DESC");
         // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
         
