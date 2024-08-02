@@ -443,7 +443,7 @@ class AkademikController extends Controller
               $previousyear = $nextYear -1;
               $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
             } 
-            // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+            $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
             // $asa = "wasa";
             $query->select('id', 
             // DB::raw('"'.$value.'" as wadw'), 
@@ -451,7 +451,7 @@ class AkademikController extends Controller
             // $query->where('semester', $request->input('semester'));
             
             $query->where('academic_year', $thnAkademik);
-            // $query->where('curr_code', $cekNewKurikulum['curr_code']); 
+            $query->where('curr_code', $cekNewKurikulum['curr_code']); 
             $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
             $query->with([ 
               'matkul'  => function ($exx) {
