@@ -753,7 +753,7 @@ class AkademikController extends Controller
 
         
         
-        // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
         
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
@@ -787,7 +787,7 @@ class AkademikController extends Controller
           'siak_lecture.on_day',
         ])
         ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
-        // ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
+        ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
         ->where('code', $id_matkul)
         ->where('siak_lecture.class', $kelas)
         ->first()->toArray(); 
