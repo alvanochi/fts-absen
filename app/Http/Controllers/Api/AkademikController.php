@@ -279,7 +279,6 @@ class AkademikController extends Controller
           // $query->where('created_at', '=>', $from)->where('created_at', '<=', $to);
         // },
         // 'matkul', 'lecturer']) 
-        ->where('siak_lecture.department_code', 'FT_TI') 
         // ->whereHas('pembelajaran', function($query) {
         //   $query->whereBetween('created_at', [$from, $to]);
         // })
@@ -444,7 +443,7 @@ class AkademikController extends Controller
               $previousyear = $nextYear -1;
               $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
             } 
-            $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+            // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
             // $asa = "wasa";
             $query->select('id', 
             // DB::raw('"'.$value.'" as wadw'), 
@@ -452,7 +451,7 @@ class AkademikController extends Controller
             // $query->where('semester', $request->input('semester'));
             
             $query->where('academic_year', $thnAkademik);
-            $query->where('curr_code', $cekNewKurikulum['curr_code']); 
+            // $query->where('curr_code', $cekNewKurikulum['curr_code']); 
             $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
             $query->with([ 
               'matkul'  => function ($exx) {
@@ -467,7 +466,7 @@ class AkademikController extends Controller
         ])
         ->whereNotNull('nik')
         ->where('nik', '!=', '')
-        ->where('faculty_code', 'FT')
+        // ->where('faculty_code', 'FT')
         ->where('active', 'Y');
         $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
 
@@ -754,7 +753,7 @@ class AkademikController extends Controller
 
         
         
-        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+        // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
         
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
@@ -788,7 +787,7 @@ class AkademikController extends Controller
           'siak_lecture.on_day',
         ])
         ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
-        ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
+        // ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
         ->where('code', $id_matkul)
         ->where('siak_lecture.class', $kelas)
         ->first()->toArray(); 
