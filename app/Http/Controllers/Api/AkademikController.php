@@ -734,9 +734,12 @@ class AkademikController extends Controller
             // Menambahkan status ke array hasil 
             array_push($stAbsenDeal, $status); 
           }
+
+       
            
-          $countPersen = (count($val) / 14) * 100;
-          $persen = round($countPersen, 2). '%';
+          $countPersen = min((count($val) / 14) * 100, 100);
+          $persen = round($countPersen, 2) . '%';
+          
          
           array_push($dummy, array(
             "name_mhs" => $key,
