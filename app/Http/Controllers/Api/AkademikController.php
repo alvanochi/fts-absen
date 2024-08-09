@@ -337,8 +337,8 @@ class AkademikController extends Controller
                 array_push($pertemuan_statusKelas, null);
               } 
             }
-            $countPersen = (count($key['pembelajaran']) / 14) * 100;
-            $persen = round($countPersen, 2). '%';
+            $countPersen = min((count($key['pembelajaran']) / 14) * 100, 100);
+            $persen = round($countPersen, 2) . '%';            
           } else {
             for ($i = 0; $i < 14; $i++) {
               array_push($pertemuan, 0);
