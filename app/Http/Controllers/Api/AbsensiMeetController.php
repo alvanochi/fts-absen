@@ -33,7 +33,7 @@ class AbsensiMeetController extends Controller
             'coordinate_absen',
             'created_at',
             'deleted_at' 
-        ]); 
+        ])->with('meeting');
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {

@@ -22,6 +22,11 @@ class AbsensiMeet extends Model
         'deleted_at' 
     ];
  
+    
+    public function meeting()
+    {
+        return $this->belongsTo(Meeting::class, 'id_meeting', 'id');
+    }
 
     public static function boot()
     {
@@ -30,12 +35,7 @@ class AbsensiMeet extends Model
         static::addGlobalScope(function ($query) {
             $query->whereNull('absensi_meeting.deleted_at');
         });
-    }
-
-    // public function mahasiswa()
-    // {
-    //     return $this->belongsTo(Pmb_Candidate::class, 'code', 'student_code');
-    // }
+    } 
   
     public static function getTableColumns()
     {
