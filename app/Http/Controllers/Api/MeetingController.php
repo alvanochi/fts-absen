@@ -26,20 +26,25 @@ class MeetingController extends Controller
         $filterValue = $request->input('filterValue');
 
         $data = Meeting::select([
-            'id',   
+            'id',     
             'id_group_tias',
             'nm_pengundang', 
             'nm_kegiatan', 
+            'tipe_kegiatan',
+            'sub_tema',
             'ruangan', 
             'bukti_foto', 
-
+            'narsum',
+            'ket_narsum',
+            'link_online',
             'pertemuan', 
             'tanggal', 
             'waktu', 
+            'waktu_end', 
             'notulen',  
             'status_ruangan',  
             'token',
-            'created_at', 
+            'contact',
             'deleted_at' 
         ]);
         // ->with('dosen', 'matkul'); 

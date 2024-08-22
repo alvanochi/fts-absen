@@ -12,20 +12,26 @@ class Meeting extends Model
     protected $connection = 'mysql';
 
     protected $table = 'meeting';
-    protected $fillable = [ 
+    protected $fillable = [  
         'id',     
         'id_group_tias',
         'nm_pengundang', 
         'nm_kegiatan', 
+        'tipe_kegiatan',
+        'sub_tema',
         'ruangan', 
         'bukti_foto', 
-
+        'narsum',
+        'ket_narsum',
+        'link_online',
         'pertemuan', 
         'tanggal', 
         'waktu', 
+        'waktu_end', 
         'notulen',  
         'status_ruangan',  
         'token',
+        'contact',
         'deleted_at' 
     ];
  
