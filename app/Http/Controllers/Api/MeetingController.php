@@ -59,17 +59,20 @@ class MeetingController extends Controller
             }
         }
     
-        if ($tanggal_mulai && $tanggal_selesai && $tanggal_mulai === $tanggal_selesai) {
-            $data->whereDate('tanggal', $tanggal_mulai);
+        if ($tanggal_mulai && $tanggal_selesai) {
+            $data->whereDate('tanggal', '>=', $tanggal_mulai)
+                 ->whereDate('tanggal', '<=', $tanggal_selesai);
         } else {
             if ($tanggal_mulai) {
-                $data->where('tanggal', '>=', $tanggal_mulai);
+                $data->whereDate('tanggal', '>=', $tanggal_mulai);
             }
+        
             if ($tanggal_selesai) {
-                $tanggal_selesai = date('Y-m-d 23:59:59', strtotime($tanggal_selesai));
-                $data->where('tanggal', '<=', $tanggal_selesai);
+                $tanggal_selesai = date('Y-m-d', strtotime($tanggal_selesai));
+                $data->whereDate('tanggal', '<=', $tanggal_selesai);
             }
         }
+        
     
         $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
     
