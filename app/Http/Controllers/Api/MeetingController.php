@@ -60,14 +60,14 @@ class MeetingController extends Controller
         }
     
         if ($tanggal_mulai && $tanggal_selesai && $tanggal_mulai === $tanggal_selesai) {
-            $data->whereDate('created_at', $tanggal_mulai);
+            $data->whereDate('tanggal', $tanggal_mulai);
         } else {
             if ($tanggal_mulai) {
-                $data->where('created_at', '>=', $tanggal_mulai);
+                $data->where('tanggal', '>=', $tanggal_mulai);
             }
             if ($tanggal_selesai) {
                 $tanggal_selesai = date('Y-m-d 23:59:59', strtotime($tanggal_selesai));
-                $data->where('created_at', '<=', $tanggal_selesai);
+                $data->where('tanggal', '<=', $tanggal_selesai);
             }
         }
     
