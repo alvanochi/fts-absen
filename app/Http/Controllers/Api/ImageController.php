@@ -118,15 +118,16 @@ class ImageController extends Controller
             $font->valign('left');
         });
         
+        $fileName = ''.$request->input('tipe_kegiatan').' - '.$request->input('narsum').' ('.$request->input('tanggal').')';
 
         // Simpan atau kirim gambar sebagai response
-        $img->save(storage_path('app/public/generatePamplet/pamplet.png'));
+        $img->save(storage_path('app/public/generatePamplet/'.$fileName.'.png'));
 
         // Return response dengan URL gambar
         return response()->json([
             'status' => 200,
             'message' => 'Image generated successfully!',
-            'image_url' => url('storage/generatePamplet/pamplet.png'),
+            'image_url' => url('storage/generatePamplet/'.$fileName.'.png'),
         ]);
     }
 
