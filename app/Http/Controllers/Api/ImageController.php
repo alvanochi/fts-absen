@@ -14,6 +14,8 @@ use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\Meeting;
+
 use Intervention\Image\ImageManagerStatic as Image;
 
 
@@ -137,7 +139,12 @@ class ImageController extends Controller
         $request->validate([
             'nama' => 'required|string',
             'id_meeting' => 'required|string'
-        ]); 
+        ]);  
+
+        $dataMeetings = Meeting::find($request->input('id_meeting'));
+        if (!$dataMeetings) {
+            return ResponseBuilder::success(200, "Meeting not found", '');
+        } 
 
         $backgroundImage = Image::make(public_path('pamplet.png'))->fit(1080, 700, function ($constraint) {
             $constraint->aspectRatio();
@@ -150,14 +157,25 @@ class ImageController extends Controller
         $img->insert($backgroundImage, 'center'); 
 
         // Tambahkan teks ke gambar
-        $img->text($request->input('nama'), 65, 300, function ($font) {
+        $img->text($dataMeetings['nm_kegiatan'], 65, 300, function ($font) {
+            $font->file(public_path('YesevaOne-Regular.ttf')); // Pastikan kamu memiliki font ini
+            $font->size(55);
+            $font->color('#ffffff');
+            $font->align('left');
+            $font->valign('left');
+        });
+
+        $img->text($request->input('nama'), 65, 390, function ($font) {
             $font->file(public_path('YesevaOne-Regular.ttf')); // Pastikan kamu memiliki font ini
             $font->size(55);
             $font->color('#ffffff');
             $font->align('left');
             $font->valign('left');
         }); 
+
+         
         
+       
         
 
         $dummyFolder = 'public/generateCertificate/'.$request->input('id_meeting').'';
