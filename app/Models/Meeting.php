@@ -32,6 +32,7 @@ class Meeting extends Model
         'status_ruangan',  
         'token',
         'contact',
+        'created_at',
         'deleted_at' 
     ];
  

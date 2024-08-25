@@ -24,6 +24,8 @@ class MeetingController extends Controller
     {
         $filterField = $request->input('filter');
         $filterValue = $request->input('filterValue');
+        $tanggal_mulai = $request->input('tanggal_mulai');
+        $tanggal_selesai = $request->input('tanggal_selesai');
 
         $data = Meeting::select([
             'id',     
@@ -45,9 +47,10 @@ class MeetingController extends Controller
             'status_ruangan',  
             'token',
             'contact',
+            'created_at',
             'deleted_at' 
         ]);
-        // ->with('dosen', 'matkul'); 
+    
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {
@@ -55,33 +58,40 @@ class MeetingController extends Controller
                 }
             }
         }
+    
+        if ($tanggal_mulai && $tanggal_selesai && $tanggal_mulai === $tanggal_selesai) {
+            $data->whereDate('created_at', $tanggal_mulai);
+        } else {
+            if ($tanggal_mulai) {
+                $data->where('created_at', '>=', $tanggal_mulai);
+            }
+            if ($tanggal_selesai) {
+                $tanggal_selesai = date('Y-m-d 23:59:59', strtotime($tanggal_selesai));
+                $data->where('created_at', '<=', $tanggal_selesai);
+            }
+        }
+    
         $data = $data->orderBy($request->input('orderField') ? $request->input('orderField') : 'id', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
-
-
+    
         if ($request->input('dataTable') == true) {
             return $dummyTable = Datatables::of($data)
-            ->addIndexColumn()  
-            // ->addColumn('qr_code', function ($row) {
-            //     return QrCode::generate(
-            //         $row['token'],
-            //     );
-            // })
-            ->make(true);
-        }else{ 
-            if($request->input('searchData')){
+                ->addIndexColumn()  
+                ->make(true);
+        } else { 
+            if ($request->input('searchData')) {
                 $data->where(function ($query) use ($request) {
                     foreach (Meeting::getTableColumns() as $value) {
-                        $query->orwhere('meeting.' . $value, 'LIKE',  "%" . $request->input('searchData') . "%");
-                        $query->orwhere('meeting.' . $value, 'LIKE',  "" . $request->input('searchData') . "%");
-                        $query->orwhere('meeting.' . $value, 'LIKE',  "%" . $request->input('searchData') . "");
-                        $query->orwhere('meeting.' . $value, 'LIKE',  $request->input('searchData'));
+                        $query->orWhere('meeting.' . $value, 'LIKE', "%" . $request->input('searchData') . "%");
                     }
                 });
             }
             $dummyAll = $data->get();
             return ResponseBuilder::success(200, "success", $dummyAll);
         }
-    }  
+    }
+    
+    
+    
 
     public function find(Request $request)
     {
