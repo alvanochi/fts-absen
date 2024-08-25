@@ -118,7 +118,7 @@ class ImageController extends Controller
             $font->valign('left');
         });
         
-        $fileName = ''.$request->input('tipe_kegiatan').' - '.$request->input('narsum').' ('.$request->input('tanggal').')';
+        $fileName = ''.$request->input('tipe_kegiatan').'-'.$request->input('narsum').'-('.$request->input('tanggal').')';
 
         // Simpan atau kirim gambar sebagai response
         $img->save(storage_path('app/public/generatePamplet/'.$fileName.'.png'));
