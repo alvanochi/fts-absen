@@ -12,6 +12,7 @@ use App\Http\Helper\ResponseBuilder;
 use Illuminate\Support\Facades\DB; 
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str; 
+use Illuminate\Support\Facades\Storage;
 
 use Intervention\Image\ImageManagerStatic as Image;
 
@@ -128,6 +129,55 @@ class ImageController extends Controller
             'status' => 200,
             'message' => 'Image generated successfully!',
             'image_url' => url('storage/generatePamplet/'.$fileName.'.png'),
+        ]);
+    }
+
+    public function generateCertificate(Request $request){
+        // Validasi input
+        $request->validate([
+            'nama' => 'required|string',
+            'id_meeting' => 'required|string'
+        ]); 
+
+        $backgroundImage = Image::make(public_path('pamplet.png'))->fit(1080, 700, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });   
+
+
+        // Buat gambar
+        $img = Image::canvas(1080, 700, '#ffffff');
+        $img->insert($backgroundImage, 'center'); 
+
+        // Tambahkan teks ke gambar
+        $img->text($request->input('nama'), 65, 300, function ($font) {
+            $font->file(public_path('YesevaOne-Regular.ttf')); // Pastikan kamu memiliki font ini
+            $font->size(55);
+            $font->color('#ffffff');
+            $font->align('left');
+            $font->valign('left');
+        }); 
+        
+        
+
+        $dummyFolder = 'public/generateCertificate/'.$request->input('id_meeting').'';
+        if (Storage::exists($dummyFolder)) {
+            // return "Folder already exists.";
+        } else { 
+            Storage::makeDirectory($dummyFolder, 0755, true, true);
+            // return "Folder created successfully!";
+        }
+
+        $fileName = ''.$request->input('nama').'';
+
+        // Simpan atau kirim gambar sebagai response
+        $img->save(storage_path('app/public/generateCertificate/'.$request->input('id_meeting').'/'.$fileName.'.png'));
+
+        // Return response dengan URL gambar
+        return response()->json([
+            'status' => 200,
+            'message' => 'Image generated successfully!',
+            'image_url' => url('storage/generateCertificate/'.$request->input('id_meeting').'/'.$fileName.'.png'),
         ]);
     }
 

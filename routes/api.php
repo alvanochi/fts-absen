@@ -53,6 +53,7 @@ Route::post('/register', 'Api\AuthController@register');
     Route::delete('/meeting/delete/{id}', 'Api\MeetingController@delete');   
 
     Route::post('/generate-pamplet', 'Api\ImageController@generateImage');
+    Route::post('/generate-certificate', 'Api\ImageController@generateCertificate');
 
     Route::get('/meeting-invite', 'Api\InviteMeetController@index');  
     Route::post('/meeting-invite/store', 'Api\InviteMeetController@store');  
