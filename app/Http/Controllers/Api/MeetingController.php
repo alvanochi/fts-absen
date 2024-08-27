@@ -26,6 +26,7 @@ class MeetingController extends Controller
         $filterValue = $request->input('filterValue');
         $tanggal_mulai = $request->input('tanggal_mulai');
         $tanggal_selesai = $request->input('tanggal_selesai');
+        $ids = $request->input("meetIds");
 
         $data = Meeting::select([
             'id',     
@@ -71,6 +72,10 @@ class MeetingController extends Controller
                 $tanggal_selesai = date('Y-m-d', strtotime($tanggal_selesai));
                 $data->whereDate('tanggal', '<=', $tanggal_selesai);
             }
+        }
+
+        if ($ids) {
+            $data->whereIn('id', $ids);
         }
         
     
