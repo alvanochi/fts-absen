@@ -99,6 +99,15 @@ class AkademikController extends Controller
         $semester = $request->input('semester');
         $code = $request->input('code');
 
+
+        $dataDosenCodes = Siak_Lecturer::where('nik', $code)->pluck('code')->toArray();
+          // return response()->json(
+          //   array(
+          //     "data" => $dataDosenCodes
+          //   )
+          // ); 
+
+
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
         $previousyear = $thisYear -1;
@@ -144,7 +153,7 @@ class AkademikController extends Controller
           $data = $data->where('semester', $stSemester);
         } 
         if($code){
-          $data = $data->where('lecturer_code', $code);
+          $data = $data->whereIn('lecturer_code', $dataDosenCodes);
         }
 
         if ($filterField && $filterValue) {
