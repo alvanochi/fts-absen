@@ -152,9 +152,16 @@ class AkademikController extends Controller
         }else{
           $data = $data->where('semester', $stSemester);
         } 
-        if($code){
-          $data = $data->whereIn('lecturer_code', $dataDosenCodes);
-        }
+        if($dataDosenCodes || $code) {
+          $data = $data->where(function($query) use ($dataDosenCodes, $code) {
+              if ($dataDosenCodes) {
+                  $query->whereIn('lecturer_code', $dataDosenCodes);
+              }
+              if ($code) {
+                  $query->orWhere('lecturer_code', $code);
+              }
+          });
+      }
 
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
