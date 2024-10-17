@@ -403,205 +403,145 @@ class AkademikController extends Controller
 
     public function listDosenPertemuan(Request $request){
       try {
-        $filterField = $request->input('filter');
-        $filterValue = $request->input('filterValue'); 
+          $filterField = $request->input('filter');
+          $filterValue = $request->input('filterValue'); 
+  
+          $thisMonth = DATE("n");
+          $thisYear = DATE("Y");
+          $nextYear = date('Y', strtotime('+1 Year'));
+          $from = date(''.$thisYear.'-02-01');
+          $to = date(''.$nextYear.'-02-01'); 
+  
+          // Ambil tahun akademik dari request, jika tidak ada fallback ke perhitungan default
+          $thnAkademik = $request->input('academic_year');
+          
+          if(!$thnAkademik) {
+              if($thisMonth <= 9){   // GENAP
+                  $stSemester = "GENAP";
+                  $previousyear = $thisYear - 1;
+                  $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
+              } else {    // GASAL
+                  $stSemester = "GASAL";
+                  $previousyear = $nextYear - 1;
+                  $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
+              }
+          }
 
-        $thisMonth = DATE("n");
-        $thisYear = DATE("Y");
-        $nextYear = date('Y', strtotime('+1 Year'));
-        $from = date(''.$thisYear.'-02-01');
-        $to = date(''.$nextYear.'-02-01'); 
-
-        if($thisMonth <= 9){   //GENAP
-          $stSemester = "GENAP";
-          $previousyear = $thisYear -1;
-          $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
-        }else{    //GASAL
-          $stSemester = "GASAL";
-          $previousyear = $nextYear -1;
-          $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
-        } 
-
-        $dataDosen = Siak_Lecturer::select([
-          'code', 
-          'faculty_code', 
-          'nik', 
-          'name', 
-          'status', 
-          'functional_title', 
-          'sex', 
-          'religion',
-          'active'
-        ])
-        ->with([
-          // 'lecture',
-          'dosen'  => function ($el) {
-            $el->select(
-              'id', 
-              'nip', 
-              'nidn', 
-              // 'title', 'status_kerja'
-            );
-          },
-          'lecture' => function ($query) {
-            $thisMonth = DATE("n");
-            $thisYear = DATE("Y");
-            $nextYear = date('Y', strtotime('+1 Year'));
-            $from = date(''.$thisYear.'-02-01');
-            $to = date(''.$nextYear.'-02-01'); 
-
-            if($thisMonth <= 9){   //GENAP
-              $stSemester = "GENAP";
-              $previousyear = $thisYear -1;
-              $thnAkademik = ''.$previousyear.'/'.$thisYear.'';
-            }else{    //GASAL
-              $stSemester = "GASAL";
-              $previousyear = $nextYear -1;
-              $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
-            } 
-            $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
-            // $asa = "wasa";
-            $query->select('id', 
-            // DB::raw('"'.$value.'" as wadw'), 
-            'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
-            // $query->where('semester', $request->input('semester'));
-            
-            $query->where('academic_year', $thnAkademik);
-            $query->where('curr_code', $cekNewKurikulum['curr_code']); 
-            $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
-            $query->with([ 
-              'matkul'  => function ($exx) {
-                $exx->select('code', 'curr_code', 'name', 'credit', 'semester');
+          $dataDosen = Siak_Lecturer::select([
+              'code', 
+              'faculty_code', 
+              'nik', 
+              'name', 
+              'status', 
+              'functional_title', 
+              'sex', 
+              'religion',
+              'active'
+          ])
+          ->with([
+              'dosen' => function ($el) {
+                  $el->select('id', 'nip', 'nidn');
               },
-              'pembelajaran'  => function ($exs) {
-                $exs->select('id', 'id_lecture', 'status_kelas');
+              'lecture' => function ($query) use ($thnAkademik, $request) {
+                  $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+                  
+                  $query->select('id', 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
+                  
+                  $query->where('academic_year', $thnAkademik);
+                  $query->where('curr_code', $cekNewKurikulum['curr_code']); 
+                  $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
+                  $query->with([ 
+                      'matkul' => function ($exx) {
+                          $exx->select('code', 'curr_code', 'name', 'credit', 'semester');
+                      },
+                      'pembelajaran' => function ($exs) {
+                          $exs->select('id', 'id_lecture', 'status_kelas');
+                      }
+                  ]);  
               }
-            ]);  
-             
-          }
-        ])
-        ->whereNotNull('nik')
-        ->where('nik', '!=', '')
-        // ->where('faculty_code', 'FT')
-        ->where('active', 'Y');
-        $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
-
-        if ($filterField && $filterValue) {
-            foreach ($filterField as $key => $value) {
-                if ($filterField[$key] != null || $filterValue[$key] != null) {
-                  $dataDosen->where($value, '=', $filterValue[$key]);
-                }
-            }
-        } 
-        $dummyDosen = $dataDosen->get()->toArray(); 
-        // return response()->json([
-        //   "status" => 200,
-        //   "hasilModif" => $dummyDosen 
-        // ]);
-
-        foreach ($dummyDosen as $key) { 
-          $hasilGenap_arrayCount = [];
-          $hasilGasal_arrayCount = [];
-          $ttl_matkulGenap = 0;
-          $ttl_matkulGasal = 0;
-          $nidn = null;
-          if($key['dosen'] != null){
-            $nidn = $key['dosen']['nidn'];
-          }
-          if(count($key['lecture']) > 0){
-            // $ttl_matkulGenap = count($key['lecture']); 
-            foreach ($key['lecture'] as $val) {
-
-              if($val['semester'] == "GENAP"){
-                $ttl_matkulGenap = $ttl_matkulGenap + 1;
-                $hasilGenap_array = []; 
-                if(count($val['pembelajaran']) > 0){ 
-                      $countPersenGenap = (count($val['pembelajaran']) / 14) * 100;
-                      array_push($hasilGenap_array, $countPersenGenap); 
-                      $hasilGenap_arrayCount[] = $hasilGenap_array;  
-                }
-              }else{ 
-                $ttl_matkulGasal = $ttl_matkulGasal + 1;
-                $hasilGasal_array = [];
-                if(count($val['pembelajaran']) > 0){ 
-                      $countPersenGasal = (count($val['pembelajaran']) / 14) * 100;  
-                      array_push($hasilGasal_array, $countPersenGasal); 
-                      $hasilGasal_arrayCount[] = $hasilGasal_array; 
-                }
+          ])
+          ->whereNotNull('nik')
+          ->where('nik', '!=', '')
+          ->where('active', 'Y');
+  
+          $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
+  
+          if ($filterField && $filterValue) {
+              foreach ($filterField as $key => $value) {
+                  if ($filterField[$key] != null || $filterValue[$key] != null) {
+                      $dataDosen->where($value, '=', $filterValue[$key]);
+                  }
               }
-
-
-            }  
+          } 
+  
+          $dummyDosen = $dataDosen->get()->toArray(); 
+  
+          $hasilModif = [];
+          foreach ($dummyDosen as $key) { 
+              $hasilGenap_arrayCount = [];
+              $hasilGasal_arrayCount = [];
+              $ttl_matkulGenap = 0;
+              $ttl_matkulGasal = 0;
+              $nidn = $key['dosen'] != null ? $key['dosen']['nidn'] : null;
+              
+              if(count($key['lecture']) > 0){
+                  foreach ($key['lecture'] as $val) {
+                      if($val['semester'] == "GENAP"){
+                          $ttl_matkulGenap += 1;
+                          $hasilGenap_array = []; 
+                          if(count($val['pembelajaran']) > 0){ 
+                              $countPersenGenap = (count($val['pembelajaran']) / 14) * 100;
+                              array_push($hasilGenap_array, $countPersenGenap); 
+                              $hasilGenap_arrayCount[] = $hasilGenap_array;  
+                          }
+                      } else { 
+                          $ttl_matkulGasal += 1;
+                          $hasilGasal_array = [];
+                          if(count($val['pembelajaran']) > 0){ 
+                              $countPersenGasal = (count($val['pembelajaran']) / 14) * 100;  
+                              array_push($hasilGasal_array, $countPersenGasal); 
+                              $hasilGasal_arrayCount[] = $hasilGasal_array; 
+                          }
+                      }
+                  }  
+              }
+  
+              $averageGenap = count($hasilGenap_arrayCount) > 0 ? array_sum(array_merge(...$hasilGenap_arrayCount)) / $ttl_matkulGenap : 0;
+              $averageGasal = count($hasilGasal_arrayCount) > 0 ? array_sum(array_merge(...$hasilGasal_arrayCount)) / $ttl_matkulGasal : 0;
+  
+              if(count($key['lecture']) > 0){ 
+                  $hasilModif[] = array(  
+                      "code_lecturer" => $key['code'], 
+                      "nik" => $key['nik'],
+                      "nidn" => $nidn,
+                      "name" => $key['name'],
+                      "ttl_matkulGenap" => $ttl_matkulGenap,
+                      "ttl_matkulGasal" => $ttl_matkulGasal,
+                      "persentase_genap" => round($averageGenap, 2) . '%',
+                      "persentase_gasal" => round($averageGasal, 2) . '%',
+                  );
+              }
           }
-
-          if(count($hasilGenap_arrayCount) > 0){
-            // Flatten the nested array
-            $flattenedGenap = array_merge(...$hasilGenap_arrayCount);
-
-            // Calculate the sum
-            $totalSumGenap = array_sum($flattenedGenap);
-
-            // Calculate the average 
-            $averageGenap = $totalSumGenap / intval($ttl_matkulGenap);
-          }else{
-            $averageGenap = 0;
+  
+          if ($request->input('dataTable') == true) {
+              return Datatables::of($hasilModif)
+              ->addIndexColumn()  
+              ->make(true);
+          } else { 
+              return response()->json([
+                  "status" => 200, 
+                  "data" => $hasilModif 
+              ]);
           }
-
-          if(count($hasilGasal_arrayCount) > 0){
-            // Flatten the nested array
-            $flattenedGasal = array_merge(...$hasilGasal_arrayCount);
-
-            // Calculate the sum
-            $totalSumGasal = array_sum($flattenedGasal);
-
-            // Calculate the average 
-            $averageGasal = $totalSumGasal / intval($ttl_matkulGasal);
-          }else{
-            $averageGasal = 0;
-          }
-
-          if(count($key['lecture']) > 0){ 
-            $hasilModif[] = array(  
-              "code_lecturer" => $key['code'], 
-              // "faculty_code" => $key['faculty_code'],
-              "nik" => $key['nik'],
-              "nidn" => $nidn,
-              "name" => $key['name'],
-              // "status" => $key['status'], 
-              // "functional_title" => $key['functional_title'],
-              // "sex" => $key['sex'],
-              // "religion" => $key['religion'], 
-              "ttl_matkulGenap" => $ttl_matkulGenap,
-              "ttl_matkulGasal" => $ttl_matkulGasal,
-              "persentase_genap" => round($averageGenap, 2). '%',
-              "persentase_gasal" => round($averageGasal, 2). '%',
-              // "hasilGenap_arrayCount" => $hasilGenap_arrayCount,
-            );
-          }
-        }
-
-        
-        if ($request->input('dataTable') == true) {
-            return $dummyTable = Datatables::of($hasilModif)
-            ->addIndexColumn()  
-            // ->addColumn('qr_code', function ($row) {
-            //     return QrCode::generate(
-            //         $row['token'],
-            //     );
-            // })
-            ->make(true);
-        }else{ 
-          return response()->json([
-            "status" => 200, 
-            "data" => $hasilModif 
-          ]);
-        }
-        
- 
       } catch (\Exception $e) {
-        return ResponseBuilder::success(200, "error", null); 
+          Log::error('Error di listDosenPertemuan: ' . $e->getMessage());
+          Log::error('Lokasi error: ' . $e->getFile() . ' di baris ' . $e->getLine());
+          return response()->json([
+              "status" => 500,
+              "message" => $e->getMessage(),
+          ], 500);
       }
-    }
+  }
 
     public function listAbsenMatkul(Request $request){
       // try {
