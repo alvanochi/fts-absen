@@ -404,17 +404,32 @@ class AkademikController extends Controller
 
     public function listDosenPertemuan(Request $request){
       try {
-        if (!$request->has('academic_year') || !$request->has('departement_code')) {
-          return response()->json([
-              "status" => 200,
-              "draw" => 0,
-              "recordsTotal" => 0,
-              "recordsFiltered" => 0,
-              "data" => []
-          ]);
-        }
+     
           $filterField = $request->input('filter');
           $filterValue = $request->input('filterValue'); 
+
+          $departementCode = null;
+          $academicYear = null;
+          
+          // Iterate over the filters to match the corresponding values
+          if ($filterField && $filterValue) {
+              foreach ($filterField as $index => $filter) {
+                  if ($filter == 'departement_code') {
+                      $departementCode = $filterValue[$index];
+                  }
+                  if ($filter == 'academic_year') {
+                      $academicYear = $filterValue[$index];
+                  }
+              }
+          }
+          
+          // Check if the values are available
+          if (!$academicYear || !$departementCode) {
+              return response()->json([
+                  "status" => 200, 
+                  "data" => []
+              ]);
+          }
   
           $thisMonth = DATE("n");
           $thisYear = DATE("Y");
@@ -423,8 +438,8 @@ class AkademikController extends Controller
           $to = date(''.$nextYear.'-02-01'); 
   
           // Ambil tahun akademik dari request, jika tidak ada fallback ke perhitungan default
-          $thnAkademik = $request->input('academic_year');
-          
+          $thnAkademik = $academicYear;
+
           if(!$thnAkademik) {
               if($thisMonth <= 9){   // GENAP
                   $stSemester = "GENAP";
@@ -452,8 +467,8 @@ class AkademikController extends Controller
               'dosen' => function ($el) {
                   $el->select('id', 'nip', 'nidn');
               },
-              'lecture' => function ($query) use ($thnAkademik, $request) {
-                  $cekNewKurikulum = Siak_Curriculum::where('department_code', $request->departement_code)->orderBy('curr_code', 'DESC')->first();
+              'lecture' => function ($query) use ($thnAkademik, $departementCode) {
+                  $cekNewKurikulum = Siak_Curriculum::where('department_code', $departementCode)->orderBy('curr_code', 'DESC')->first();
                   
                   $query->select('id', 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
                   
@@ -478,13 +493,13 @@ class AkademikController extends Controller
           $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
   
           // Apply filters
-          if ($filterField && $filterValue) {
-              foreach ($filterField as $key => $value) {
-                  if ($filterField[$key] != null || $filterValue[$key] != null) {
-                      $dataDosen->where($value, '=', $filterValue[$key]);
-                  }
-              }
-          } 
+          // if ($filterField && $filterValue) {
+          //     foreach ($filterField as $key => $value) {
+          //         if ($filterField[$key] != null || $filterValue[$key] != null) {
+          //             $dataDosen->where($value, '=', $filterValue[$key]);
+          //         }
+          //     }
+          // } 
   
           $dummyDosen = $dataDosen->get()->toArray(); 
   
