@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Yajra\Datatables\Datatables;
 use App\Http\Helper\ResponseBuilder;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 // protected $connection = 'second_db';
@@ -403,6 +404,15 @@ class AkademikController extends Controller
 
     public function listDosenPertemuan(Request $request){
       try {
+        if (!$request->has('academic_year') || !$request->has('departement_code')) {
+          return response()->json([
+              "status" => 200,
+              "draw" => 0,
+              "recordsTotal" => 0,
+              "recordsFiltered" => 0,
+              "data" => []
+          ]);
+        }
           $filterField = $request->input('filter');
           $filterValue = $request->input('filterValue'); 
   
@@ -426,7 +436,7 @@ class AkademikController extends Controller
                   $thnAkademik = ''.$previousyear.'/'.$nextYear.'';
               }
           }
-
+  
           $dataDosen = Siak_Lecturer::select([
               'code', 
               'faculty_code', 
@@ -443,7 +453,7 @@ class AkademikController extends Controller
                   $el->select('id', 'nip', 'nidn');
               },
               'lecture' => function ($query) use ($thnAkademik, $request) {
-                  $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+                  $cekNewKurikulum = Siak_Curriculum::where('department_code', $request->departement_code)->orderBy('curr_code', 'DESC')->first();
                   
                   $query->select('id', 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
                   
@@ -464,8 +474,10 @@ class AkademikController extends Controller
           ->where('nik', '!=', '')
           ->where('active', 'Y');
   
+          // Order based on request parameters
           $dataDosen = $dataDosen->orderBy($request->input('orderField') ? $request->input('orderField') : 'code', $request->input('orderValue') ? $request->input('orderValue') : 'asc');
   
+          // Apply filters
           if ($filterField && $filterValue) {
               foreach ($filterField as $key => $value) {
                   if ($filterField[$key] != null || $filterValue[$key] != null) {
@@ -477,52 +489,61 @@ class AkademikController extends Controller
           $dummyDosen = $dataDosen->get()->toArray(); 
   
           $hasilModif = [];
+          $uniqueLecturers = [];
+  
           foreach ($dummyDosen as $key) { 
               $hasilGenap_arrayCount = [];
               $hasilGasal_arrayCount = [];
               $ttl_matkulGenap = 0;
               $ttl_matkulGasal = 0;
               $nidn = $key['dosen'] != null ? $key['dosen']['nidn'] : null;
-              
-              if(count($key['lecture']) > 0){
-                  foreach ($key['lecture'] as $val) {
-                      if($val['semester'] == "GENAP"){
-                          $ttl_matkulGenap += 1;
-                          $hasilGenap_array = []; 
-                          if(count($val['pembelajaran']) > 0){ 
-                              $countPersenGenap = (count($val['pembelajaran']) / 14) * 100;
-                              array_push($hasilGenap_array, $countPersenGenap); 
-                              $hasilGenap_arrayCount[] = $hasilGenap_array;  
-                          }
-                      } else { 
-                          $ttl_matkulGasal += 1;
-                          $hasilGasal_array = [];
-                          if(count($val['pembelajaran']) > 0){ 
-                              $countPersenGasal = (count($val['pembelajaran']) / 14) * 100;  
-                              array_push($hasilGasal_array, $countPersenGasal); 
-                              $hasilGasal_arrayCount[] = $hasilGasal_array; 
-                          }
-                      }
-                  }  
-              }
   
-              $averageGenap = count($hasilGenap_arrayCount) > 0 ? array_sum(array_merge(...$hasilGenap_arrayCount)) / $ttl_matkulGenap : 0;
-              $averageGasal = count($hasilGasal_arrayCount) > 0 ? array_sum(array_merge(...$hasilGasal_arrayCount)) / $ttl_matkulGasal : 0;
+              $uniqueKey = $key['code'] . '_' . $key['nik'];  // Kombinasi 'code' dan 'nik' sebagai unique identifier
   
-              if(count($key['lecture']) > 0){ 
-                  $hasilModif[] = array(  
-                      "code_lecturer" => $key['code'], 
-                      "nik" => $key['nik'],
-                      "nidn" => $nidn,
-                      "name" => $key['name'],
-                      "ttl_matkulGenap" => $ttl_matkulGenap,
-                      "ttl_matkulGasal" => $ttl_matkulGasal,
-                      "persentase_genap" => round($averageGenap, 2) . '%',
-                      "persentase_gasal" => round($averageGasal, 2) . '%',
-                  );
+              if (!in_array($uniqueKey, $uniqueLecturers)) { // Cek jika kombinasi code_lecturer dan nik sudah ada
+                  $uniqueLecturers[] = $uniqueKey;
+  
+                  if(count($key['lecture']) > 0){
+                      foreach ($key['lecture'] as $val) {
+                          if($val['semester'] == "GENAP"){
+                              $ttl_matkulGenap += 1;
+                              $hasilGenap_array = []; 
+                              if(count($val['pembelajaran']) > 0){ 
+                                  $countPersenGenap = (count($val['pembelajaran']) / 14) * 100;
+                                  array_push($hasilGenap_array, $countPersenGenap); 
+                                  $hasilGenap_arrayCount[] = $hasilGenap_array;  
+                              }
+                          } else { 
+                              $ttl_matkulGasal += 1;
+                              $hasilGasal_array = [];
+                              if(count($val['pembelajaran']) > 0){ 
+                                  $countPersenGasal = (count($val['pembelajaran']) / 14) * 100;  
+                                  array_push($hasilGasal_array, $countPersenGasal); 
+                                  $hasilGasal_arrayCount[] = $hasilGasal_array; 
+                              }
+                          }
+                      }  
+                  }
+  
+                  $averageGenap = count($hasilGenap_arrayCount) > 0 ? array_sum(array_merge(...$hasilGenap_arrayCount)) / $ttl_matkulGenap : 0;
+                  $averageGasal = count($hasilGasal_arrayCount) > 0 ? array_sum(array_merge(...$hasilGasal_arrayCount)) / $ttl_matkulGasal : 0;
+  
+                  if(count($key['lecture']) > 0){ 
+                      $hasilModif[] = array(  
+                          "code_lecturer" => $key['code'], 
+                          "nik" => $key['nik'],
+                          "nidn" => $nidn,
+                          "name" => $key['name'],
+                          "ttl_matkulGenap" => $ttl_matkulGenap,
+                          "ttl_matkulGasal" => $ttl_matkulGasal,
+                          "persentase_genap" => round($averageGenap, 2) . '%',
+                          "persentase_gasal" => round($averageGasal, 2) . '%',
+                      );
+                  }
               }
           }
   
+          // Return data for DataTable or JSON response
           if ($request->input('dataTable') == true) {
               return Datatables::of($hasilModif)
               ->addIndexColumn()  
@@ -541,7 +562,8 @@ class AkademikController extends Controller
               "message" => $e->getMessage(),
           ], 500);
       }
-  }
+    }
+  
 
     public function listAbsenMatkul(Request $request){
       // try {
