@@ -120,8 +120,6 @@ class AkademikController extends Controller
           $stSemester = "GASAL";
         } 
 
-        // $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first(); 
-
         $data = Siak_Lecture::select([
             'id',  
             'academic_year',
@@ -749,7 +747,7 @@ class AkademikController extends Controller
 
         
         
-        $cekNewKurikulum = Siak_Curriculum::where('department_code', 'FT_TI')->orderBy('curr_code', 'DESC')->first();
+        $cekNewKurikulum = Siak_Curriculum::orderBy('curr_code', 'DESC')->first();
         
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
