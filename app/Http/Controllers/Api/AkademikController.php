@@ -582,6 +582,10 @@ class AkademikController extends Controller
       // try {
         $id_matkul = $request->input('id_matkul');
         $kelas = $request->input('kelas');
+        $curiculum = $request->input('curiculum');
+        $cekNewKurikulum = $curiculum ?? 'TIF2021';
+        
+
         if(!$id_matkul && !$kelas){
           return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null); 
         }
@@ -610,10 +614,9 @@ class AkademikController extends Controller
         ->where('pembelajaran.id_matkul', $id_matkul)
         ->where('pembelajaran.kelas', $kelas)
         ->whereBetween('absensi_mhs.created_at', [$from, $to]);  
+        
         $dataAbsen = $dataAbsen->get()->toArray(); 
 
-
-        
 
         $result = array();
         $groupRes = array();
@@ -746,9 +749,6 @@ class AkademikController extends Controller
         } 
 
         
-        
-        $cekNewKurikulum = Siak_Curriculum::orderBy('curr_code', 'DESC')->first();
-        
         $thisMonth = DATE("n");
         $thisYear = DATE("Y");
         $nextYear = date('Y', strtotime('+1 Year'));
@@ -769,6 +769,7 @@ class AkademikController extends Controller
         //   'data' => $thnAkademik
         // ]);
 
+
         $dataMatkul = Siak_Course::select([
           'siak_course.code',
           'siak_course.curr_code',
@@ -781,7 +782,7 @@ class AkademikController extends Controller
           'siak_lecture.on_day',
         ])
         ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
-        ->where('siak_course.curr_code', $cekNewKurikulum['curr_code'])
+        ->where('siak_course.curr_code', $cekNewKurikulum)
         ->where('code', $id_matkul)
         ->where('siak_lecture.class', $kelas)
         ->first()->toArray(); 
