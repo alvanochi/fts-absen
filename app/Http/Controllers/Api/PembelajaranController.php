@@ -121,9 +121,9 @@ class PembelajaranController extends Controller
         $setPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $countPertemuan = $setPertemuan + 1; 
 
-        if($countPertemuan == 15){
-            $countPertemuan = 1;
-        }  
+        // if($countPertemuan == 15){
+        //     $countPertemuan = 1;
+        // }  
  
         // $getData = Http::get('https://cpl.ft.uika-bogor.ac.id/api/matkul', [ 
         //     'course_code' => $request->input('id_matkul')
