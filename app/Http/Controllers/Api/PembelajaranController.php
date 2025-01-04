@@ -105,18 +105,18 @@ class PembelajaranController extends Controller
                             ->where('kelas', $request->input('kelas'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
 
-        if($prosesPertemuan->get()->toArray()){
+        // if($prosesPertemuan->get()->toArray()){
 
-            $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
-            $tglPenetapan = ''.$nextYear.'-02-01'; 
-            $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
-            $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
-            if ($convertTgl2 < $convertTgl1) {
-                // $countPertemuan = 1;
-            }else{
-                $countPertemuan = 1;
-            } 
-        } 
+        //     $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
+        //     $tglPenetapan = ''.$nextYear.'-02-01'; 
+        //     $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
+        //     $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
+        //     if ($convertTgl2 < $convertTgl1) {
+        //         // $countPertemuan = 1;
+        //     }else{
+        //         $countPertemuan = 1;
+        //     } 
+        // } 
 
         $setPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $countPertemuan = $setPertemuan + 1; 
