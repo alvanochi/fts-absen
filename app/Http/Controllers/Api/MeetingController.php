@@ -180,18 +180,18 @@ class MeetingController extends Controller
                             ->where('ruangan', $request->input('ruangan'));
         $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
 
-        if($prosesPertemuan->get()->toArray()){
+        // if($prosesPertemuan->get()->toArray()){
 
-            $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
-            $tglPenetapan = ''.$nextYear.'-02-01'; 
-            $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
-            $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
-            if ($convertTgl2 < $convertTgl1) {
-                // $prosesPertemuan = 1;
-            }else{
-                $prosesPertemuan = 1;
-            } 
-        } 
+        //     $datePembelajaran = $prosesPertemuan->get()[0]['created_at'];
+        //     $tglPenetapan = ''.$nextYear.'-02-01'; 
+        //     $convertTgl1 = date('Y-m-d', strtotime($tglPenetapan));
+        //     $convertTgl2 = date('Y-m-d', strtotime($datePembelajaran));
+        //     if ($convertTgl2 < $convertTgl1) {
+        //         // $prosesPertemuan = 1;
+        //     }else{
+        //         $prosesPertemuan = 1;
+        //     } 
+        // } 
 
         $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
         $prosesPertemuan = $prosesPertemuan + 1;

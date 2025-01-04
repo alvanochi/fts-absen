@@ -189,18 +189,18 @@ class PembelajaranController extends Controller
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         }
 
-        $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
-        $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
-            ->where('id_matkul', $request->input('id_matkul'))
-            ->where('kelas', $request->input('kelas'));
-        $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
-        $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
-        $prosesPertemuan = $prosesPertemuan + 1;
-        if ($prosesPertemuan == 15) {
-            $prosesPertemuan = 1;
-        }
+        // $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
+        // $prosesPertemuan = $prosesPertemuan->where('nik_dosen', $request->input('nik_dosen'))
+        //                     ->where('id_matkul', $request->input('id_matkul'))
+        //                     ->where('kelas', $request->input('kelas'));
+        // $prosesPertemuan = $prosesPertemuan->orderBy('id', 'desc');
+        // $prosesPertemuan = $prosesPertemuan->pluck('pertemuan')->first();
+        // $prosesPertemuan = $prosesPertemuan + 1;
+        // if($prosesPertemuan == 15){
+        //     $prosesPertemuan = 1;
+        // }
 
-        $result['pertemuan'] = $prosesPertemuan;
+        // $result['pertemuan'] = $prosesPertemuan;
 
         $tokenExists = true;
         $token = null;
