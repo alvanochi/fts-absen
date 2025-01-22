@@ -306,16 +306,6 @@ class AkademikController extends Controller
         ->orderByRaw("FIND_IN_SET(siak_lecture.on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
       // ->orderBy($request->input('orderField') ? $request->input('orderField') : 'course_code', $request->input('orderValue') ? $request->input('orderValue') : 'desc');
 
-        return response()->json([
-          "Status" => array(
-            "success" => true,
-            "code" => 200,
-            "description" => "Request Valid"
-          ),
-          "Data" => $data
-        ]);
-      die;
-
 
       if ($academic_year) {
         $data = $data->where('academic_year', $academic_year);
