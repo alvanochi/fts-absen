@@ -466,7 +466,6 @@ class AkademikController extends Controller
         }
       }
 
-      $thnAkademik = '2024/2025';
       $dataDosen = Siak_Lecturer::select([
         'code',
         'faculty_code',
@@ -786,8 +785,6 @@ class AkademikController extends Controller
     //   "status" => 200,
     //   'data' => $thnAkademik
     // ]);
-
-    $thnAkademik = '2024/2025';
 
 
     $dataMatkul = Siak_Course::select([
