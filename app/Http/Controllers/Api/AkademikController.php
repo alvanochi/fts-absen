@@ -345,9 +345,9 @@ class AkademikController extends Controller
         // foreach ($key['pembelajaran'] as $val) {
         if (count($key['pembelajaran']) > 0) {                //TOTAL data dari pembelajara
           for ($i = 0; $i < 14; $i++) {
-            $urutan = $i + 1;
             array_push($cekurutan, $i);
-            array_push($cekupertemuan, $urutan);
+            array_push($cekupertemuan, $key['pembelajaran'][$i]['status_kelas']);
+            $urutan = $i + 1;
 
             if (!empty($key['pembelajaran'][$i])) {
               // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) {
