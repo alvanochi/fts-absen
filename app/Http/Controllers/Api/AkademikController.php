@@ -631,10 +631,11 @@ class AkademikController extends Controller
       return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null);
     }
 
+    $lastYear = date('Y', strtotime('-1 Year'));
     $thisYear = DATE('Y');
     $nextYear = date('Y', strtotime('+1 Year'));
-    $from = date('' . $thisYear . '-02-01');
-    $to = date('' . $nextYear . '-02-01');
+    $from = date('' . $lastYear . '-02-01');
+    $to = date('' . $thisYear . '-02-01');
 
 
     $dataAbsen = Absensi::select([
@@ -792,10 +793,10 @@ class AkademikController extends Controller
 
 
     $thisMonth = DATE("n");
-    $thisYear = DATE("Y");
-    $nextYear = date('Y', strtotime('+1 Year'));
-    $from = date('' . $thisYear . '-02-01');
-    $to = date('' . $nextYear . '-02-01');
+    // $thisYear = DATE("Y");
+    // $nextYear = date('Y', strtotime('+1 Year'));
+    // $from = date('' . $thisYear . '-02-01');
+    // $to = date('' . $nextYear . '-02-01');
 
     if ($thisMonth <= 9) {   //GENAP
       $stSemester = "GENAP";
