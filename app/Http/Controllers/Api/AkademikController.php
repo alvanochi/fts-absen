@@ -659,11 +659,7 @@ class AkademikController extends Controller
 
     $dataAbsen = $dataAbsen->get()->toArray();
 
-    return response()->json([
-      "status" => 200,
-      "tgl" => [$from, $to],
-      'data' => $dataAbsen
-    ]);
+
 
     $result = array();
     $groupRes = array();
@@ -673,6 +669,11 @@ class AkademikController extends Controller
       // $groupRes[$val['npm']][] = $val;
     }
 
+    return response()->json([
+      "status" => 200,
+      "tgl" => [$from, $to],
+      'data' => $groupRes
+    ]);
 
 
     // $st_absen = [1, 0, 2, 1, 0, 1]; // Data kehadiran
