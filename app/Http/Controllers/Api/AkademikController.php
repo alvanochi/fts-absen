@@ -364,6 +364,7 @@ class AkademikController extends Controller
               }
               array_push($pertemuan_statusKelas, $stKelas);
             } else {
+              $urutan = $urutan + 1;
               array_push($pertemuan, 0);
               array_push($pertemuan_statusKelas, null);
             }
