@@ -350,7 +350,7 @@ class AkademikController extends Controller
 
             if (!empty($key['pembelajaran'][$i])) {
               // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) {
-              array_push($cekupertemuan, $key['pembelajaran'][$i]['pertemuan']);
+              array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
 
               array_push($pertemuan, 1);
               if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
