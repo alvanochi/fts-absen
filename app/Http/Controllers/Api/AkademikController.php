@@ -625,12 +625,14 @@ class AkademikController extends Controller
     $kelas = $request->input('kelas');
     $curiculum = $request->input('curiculum');
     $cekNewKurikulum = $curiculum ?? 'TIF2021';
+    // $academic_year = $request->input('academic_year');
 
 
     if (!$id_matkul && !$kelas) {
       return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null);
     }
 
+    $thisMonth = DATE("n");
     $lastYear = date('Y', strtotime('-1 Year'));
     $thisYear = DATE('Y');
     $nextYear = date('Y', strtotime('+1 Year'));
@@ -654,8 +656,8 @@ class AkademikController extends Controller
       ->join('pembelajaran', 'absensi_mhs.id_pembelajaran', '=', 'pembelajaran.id')
       ->orderBy('pembelajaran.pertemuan', 'asc')
       ->where('pembelajaran.id_matkul', $id_matkul)
-      ->where('pembelajaran.kelas', $kelas)
-      ->whereBetween('absensi_mhs.created_at', [$from, $to]);
+      ->where('pembelajaran.kelas', $kelas);
+    // ->whereBetween('absensi_mhs.created_at', [$from, $to]);
 
     $dataAbsen = $dataAbsen->get()->toArray();
 
@@ -669,11 +671,11 @@ class AkademikController extends Controller
       // $groupRes[$val['npm']][] = $val;
     }
 
-    return response()->json([
-      "status" => 200,
-      "tgl" => [$from, $to],
-      'data' => $groupRes
-    ]);
+    // return response()->json([
+    //   "status" => 200,
+    //   "tgl" => [$from, $to],
+    //   'data' => $groupRes
+    // ]);
 
 
     // $st_absen = [1, 0, 2, 1, 0, 1]; // Data kehadiran
@@ -793,7 +795,7 @@ class AkademikController extends Controller
     }
 
 
-    $thisMonth = DATE("n");
+    // $thisMonth = DATE("n");
     // $thisYear = DATE("Y");
     // $nextYear = date('Y', strtotime('+1 Year'));
     // $from = date('' . $thisYear . '-02-01');
