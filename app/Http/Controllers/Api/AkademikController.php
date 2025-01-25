@@ -717,7 +717,10 @@ class AkademikController extends Controller
 
 
 
-
+    return response()->json([
+      "status" => 200,
+      'data' => $dataAbsen
+    ]);
 
     $dummy = array();
     foreach ($groupRes as $key => $val) {
