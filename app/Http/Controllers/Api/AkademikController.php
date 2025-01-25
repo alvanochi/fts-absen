@@ -342,45 +342,45 @@ class AkademikController extends Controller
 
         $pertemuan = array();
         $pertemuan_statusKelas = array();
-        // foreach ($key['pembelajaran'] as $val) {
+
+        // Daftar pertemuan yang ada
+        $existing_pertemuan = array_column($key['pembelajaran'], 'pertemuan');
+
         if (count($key['pembelajaran']) > 0) {                //TOTAL data dari pembelajara
           for ($i = 0; $i < 14; $i++) {
+            // Tambahkan ke array cekurutan
             array_push($cekurutan, $i);
+
+            // Urutan pertemuan (1-14)
             $urutan = $i + 1;
 
-            // if (!empty($key['pembelajaran'][$i])) {
-            // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) { 
-            if (in_array($urutan, $key['pembelajaran'][$i]['pertemuan'])) {
+            // Cek apakah pertemuan ada di $existing_pertemuan
+            if (in_array($urutan, $existing_pertemuan)) {
 
-              array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
+              // Ambil data pertemuan
+              $index = array_search($urutan, $existing_pertemuan);
+              $current_pertemuan = $key['pembelajaran'][$index];
 
+              // Tambahkan pertemuan ke cekupertemuan
+              array_push($cekupertemuan, $current_pertemuan['pertemuan']);
+
+              // Tambahkan status pertemuan
               array_push($pertemuan, 1);
-              if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
+
+              // Tentukan status kelas
+              if ($current_pertemuan['status_kelas'] == 1) {
                 $stKelas = 'Online';
-              } else if ($key['pembelajaran'][$i]['status_kelas'] == 2) {
+              } elseif ($current_pertemuan['status_kelas'] == 2) {
                 $stKelas = 'Hybrid';
               } else {
                 $stKelas = 'Offline';
               }
+
+              // Tambahkan status kelas
               array_push($pertemuan_statusKelas, $stKelas);
             } else {
-              $urutan = $urutan + 1;
-              if (in_array($urutan, $key['pembelajaran'][$i]['pertemuan'])) {
-                array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
-
-                array_push($pertemuan, 1);
-                if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
-                  $stKelas = 'Online';
-                } else if ($key['pembelajaran'][$i]['status_kelas'] == 2) {
-                  $stKelas = 'Hybrid';
-                } else {
-                  $stKelas = 'Offline';
-                }
-                array_push($pertemuan_statusKelas, $stKelas);
-              } else {
-                array_push($pertemuan, 0);
-                array_push($pertemuan_statusKelas, null);
-              }
+              array_push($pertemuan, 0);
+              array_push($pertemuan_statusKelas, null);
             }
           }
           $countPersen = min((count($key['pembelajaran']) / 14) * 100, 100);
