@@ -658,6 +658,10 @@ class AkademikController extends Controller
 
     $dataAbsen = $dataAbsen->get()->toArray();
 
+    return response()->json([
+      "status" => 200,
+      'data' => $dataAbsen->get()
+    ]);
 
     $result = array();
     $groupRes = array();
@@ -713,14 +717,7 @@ class AkademikController extends Controller
     //   "pertemuan_terlaksana" => $pertemuan_terlaksana,
     //   // "ceks" => 
     //   "data" => $hasil_array 
-    // ]);
-
-
-
-    return response()->json([
-      "status" => 200,
-      'data' => $dataAbsen
-    ]);
+    // ]); 
 
     $dummy = array();
     foreach ($groupRes as $key => $val) {
