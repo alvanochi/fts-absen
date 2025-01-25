@@ -337,11 +337,15 @@ class AkademikController extends Controller
       $label = array();
       foreach ($dummy as $key) {
 
+        $cekurutan = array();
+
         $pertemuan = array();
         $pertemuan_statusKelas = array();
         // foreach ($key['pembelajaran'] as $val) {
         if (count($key['pembelajaran']) > 0) {                //TOTAL data dari pembelajara
           for ($i = 0; $i < 14; $i++) {
+            array_push($cekurutan, array('no' => $i, 'pertemuan' => intval($key['pembelajaran'][$i]['pertemuan'])));
+
             if (!empty($key['pembelajaran'][$i])) {
               // if ($i == intval($key['pembelajaran'][$i]['pertemuan'])) {
               array_push($pertemuan, 1);
@@ -372,6 +376,7 @@ class AkademikController extends Controller
         $hasilModif[] = array(
           "cek" => array(
             'id_lecture' => $key['id'],
+            'cek_kondisi' => $cekurutan,
             'pembelajaran' => $key['pembelajaran'],
             'total_pembelajar' => count($key['pembelajaran'])
           ),
