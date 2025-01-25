@@ -369,8 +369,10 @@ class AkademikController extends Controller
 
 
         $hasilModif[] = array(
-          "cek" => count($key['pembelajaran']),
-          // "cek2" => count($key['pembelajaran']),
+          "cek" => array(
+            'id_lecture' => $key['id'],
+            'total_belajar' => count($key['pembelajaran'])
+          ),
 
           "academic_year" => $key['academic_year'],
           // "academic_year" => $thnAkademik, 
