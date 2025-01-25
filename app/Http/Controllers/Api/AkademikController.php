@@ -660,7 +660,8 @@ class AkademikController extends Controller
 
     return response()->json([
       "status" => 200,
-      'data' => $dataAbsen->get()
+      "tgl" => [$from, $to],
+      'data' => $dataAbsen
     ]);
 
     $result = array();
