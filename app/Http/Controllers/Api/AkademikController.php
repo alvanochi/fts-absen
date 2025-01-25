@@ -348,9 +348,9 @@ class AkademikController extends Controller
             array_push($cekurutan, $i);
             $urutan = $i + 1;
 
-            if (!empty($key['pembelajaran'][$i]) && $key['pembelajaran'][$i]['pertemuan'] == $urutan) {
-              // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) {
-
+            // if (!empty($key['pembelajaran'][$i])) {
+            // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) { 
+            if (in_array($urutan, $key['pembelajaran'][$i]['pertemuan'])) {
 
               array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
 
@@ -365,8 +365,22 @@ class AkademikController extends Controller
               array_push($pertemuan_statusKelas, $stKelas);
             } else {
               $urutan = $urutan + 1;
-              array_push($pertemuan, 0);
-              array_push($pertemuan_statusKelas, null);
+              if (in_array($urutan, $key['pembelajaran'][$i]['pertemuan'])) {
+                array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
+
+                array_push($pertemuan, 1);
+                if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
+                  $stKelas = 'Online';
+                } else if ($key['pembelajaran'][$i]['status_kelas'] == 2) {
+                  $stKelas = 'Hybrid';
+                } else {
+                  $stKelas = 'Offline';
+                }
+                array_push($pertemuan_statusKelas, $stKelas);
+              } else {
+                array_push($pertemuan, 0);
+                array_push($pertemuan_statusKelas, null);
+              }
             }
           }
           $countPersen = min((count($key['pembelajaran']) / 14) * 100, 100);
