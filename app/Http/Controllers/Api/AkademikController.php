@@ -345,9 +345,9 @@ class AkademikController extends Controller
         if (count($key['pembelajaran']) > 0) {                //TOTAL data dari pembelajara
           for ($i = 0; $i < 14; $i++) {
             array_push($cekurutan, $i);
-
+            $urutan = $i + 1;
             // if (!empty($key['pembelajaran'][$i])) {
-            if ($i + 1 == intval($key['pembelajaran'][$i]['pertemuan'])) {
+            if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) {
               array_push($pertemuan, 1);
               if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
                 $stKelas = 'Online';
