@@ -348,8 +348,10 @@ class AkademikController extends Controller
             array_push($cekurutan, $i);
             $urutan = $i + 1;
 
-            if (!empty($key['pembelajaran'][$i])) {
+            if (!empty($key['pembelajaran'][$i]['pertemuan'])) {
               // if ($urutan == intval($key['pembelajaran'][$i]['pertemuan'])) {
+
+
               array_push($cekupertemuan, intval($key['pembelajaran'][$i]['pertemuan']));
 
               array_push($pertemuan, 1);
