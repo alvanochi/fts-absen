@@ -319,7 +319,7 @@ class AkademikController extends Controller
       // } 
       if ($code) {
         $data = $data->whereHas('lecturer', function ($query) use ($code) {
-            $query->where('lecturer_code', $code);
+            $query->where('nik', $code);
         });
     }else {
         return ResponseBuilder::success(200, "error, code dosen harus di input", null);
