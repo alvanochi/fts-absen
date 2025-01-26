@@ -318,8 +318,10 @@ class AkademikController extends Controller
       //   $data = $data->where('semester', $stSemester);
       // } 
       if ($code) {
-        $data = $data->where('lecturer_code', $code);
-      } else {
+        $data = $data->whereHas('lecturer', function ($query) use ($code) {
+            $query->where('lecturer_code', $code);
+        });
+    }else {
         return ResponseBuilder::success(200, "error, code dosen harus di input", null);
       }
 
