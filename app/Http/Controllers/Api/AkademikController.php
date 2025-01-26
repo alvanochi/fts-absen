@@ -318,10 +318,8 @@ class AkademikController extends Controller
       //   $data = $data->where('semester', $stSemester);
       // } 
       if ($code) {
-        $data = $data->whereHas('lecturer', function ($query) use ($code) {
-            $query->where('nik', $code);
-        });
-    } else {
+        $data = $data->where('lecturer_code', $code);
+      } else {
         return ResponseBuilder::success(200, "error, code dosen harus di input", null);
       }
 
@@ -339,20 +337,46 @@ class AkademikController extends Controller
       $label = array();
       foreach ($dummy as $key) {
 
+        $cekurutan = array();
+        $cekupertemuan = array();
+
         $pertemuan = array();
         $pertemuan_statusKelas = array();
-        // foreach ($key['pembelajaran'] as $val) {
-        if (count($key['pembelajaran']) > 0) {
+
+        // Daftar pertemuan yang ada
+        $existing_pertemuan = array_column($key['pembelajaran'], 'pertemuan');
+
+        if (count($key['pembelajaran']) > 0) {                //TOTAL data dari pembelajara
           for ($i = 0; $i < 14; $i++) {
-            if (!empty($key['pembelajaran'][$i])) {
+            // Tambahkan ke array cekurutan
+            array_push($cekurutan, $i);
+
+            // Urutan pertemuan (1-14)
+            $urutan = $i + 1;
+
+            // Cek apakah pertemuan ada di $existing_pertemuan
+            if (in_array($urutan, $existing_pertemuan)) {
+
+              // Ambil data pertemuan
+              $index = array_search($urutan, $existing_pertemuan);
+              $current_pertemuan = $key['pembelajaran'][$index];
+
+              // Tambahkan pertemuan ke cekupertemuan
+              array_push($cekupertemuan, $current_pertemuan['pertemuan']);
+
+              // Tambahkan status pertemuan
               array_push($pertemuan, 1);
-              if ($key['pembelajaran'][$i]['status_kelas'] == 1) {
+
+              // Tentukan status kelas
+              if ($current_pertemuan['status_kelas'] == 1) {
                 $stKelas = 'Online';
-              } else if ($key['pembelajaran'][$i]['status_kelas'] == 2) {
+              } elseif ($current_pertemuan['status_kelas'] == 2) {
                 $stKelas = 'Hybrid';
               } else {
                 $stKelas = 'Offline';
               }
+
+              // Tambahkan status kelas
               array_push($pertemuan_statusKelas, $stKelas);
             } else {
               array_push($pertemuan, 0);
@@ -371,6 +395,14 @@ class AkademikController extends Controller
 
 
         $hasilModif[] = array(
+          // "cek" => array(
+          //   'id_lecture' => $key['id'],
+          //   'cek_urutan' => $cekurutan,
+          //   'cek_pertemuan' => $cekupertemuan,
+          //   'pembelajaran' => $key['pembelajaran'],
+          //   'total_pembelajar' => count($key['pembelajaran'])
+          // ),
+
           "academic_year" => $key['academic_year'],
           // "academic_year" => $thnAkademik, 
           "semester" => $key['semester'],
@@ -593,16 +625,19 @@ class AkademikController extends Controller
     $kelas = $request->input('kelas');
     $curiculum = $request->input('curiculum');
     $cekNewKurikulum = $curiculum ?? 'TIF2021';
+    // $academic_year = $request->input('academic_year');
 
 
     if (!$id_matkul && !$kelas) {
       return ResponseBuilder::success(200, "error, id_matkul dan kelas harus di inputkan", null);
     }
 
+    $thisMonth = DATE("n");
+    $lastYear = date('Y', strtotime('-1 Year'));
     $thisYear = DATE('Y');
     $nextYear = date('Y', strtotime('+1 Year'));
-    $from = date('' . $thisYear . '-02-01');
-    $to = date('' . $nextYear . '-02-01');
+    $from = date('' . $lastYear . '-02-01');
+    $to = date('' . $thisYear . '-02-01');
 
 
     $dataAbsen = Absensi::select([
@@ -621,10 +656,11 @@ class AkademikController extends Controller
       ->join('pembelajaran', 'absensi_mhs.id_pembelajaran', '=', 'pembelajaran.id')
       ->orderBy('pembelajaran.pertemuan', 'asc')
       ->where('pembelajaran.id_matkul', $id_matkul)
-      ->where('pembelajaran.kelas', $kelas)
-      ->whereBetween('absensi_mhs.created_at', [$from, $to]);
+      ->where('pembelajaran.kelas', $kelas);
+    // ->whereBetween('absensi_mhs.created_at', [$from, $to]);
 
     $dataAbsen = $dataAbsen->get()->toArray();
+
 
 
     $result = array();
@@ -635,6 +671,11 @@ class AkademikController extends Controller
       // $groupRes[$val['npm']][] = $val;
     }
 
+    // return response()->json([
+    //   "status" => 200,
+    //   "tgl" => [$from, $to],
+    //   'data' => $groupRes
+    // ]);
 
 
     // $st_absen = [1, 0, 2, 1, 0, 1]; // Data kehadiran
@@ -681,11 +722,7 @@ class AkademikController extends Controller
     //   "pertemuan_terlaksana" => $pertemuan_terlaksana,
     //   // "ceks" => 
     //   "data" => $hasil_array 
-    // ]);
-
-
-
-
+    // ]); 
 
     $dummy = array();
     foreach ($groupRes as $key => $val) {
@@ -758,11 +795,11 @@ class AkademikController extends Controller
     }
 
 
-    $thisMonth = DATE("n");
-    $thisYear = DATE("Y");
-    $nextYear = date('Y', strtotime('+1 Year'));
-    $from = date('' . $thisYear . '-02-01');
-    $to = date('' . $nextYear . '-02-01');
+    // $thisMonth = DATE("n");
+    // $thisYear = DATE("Y");
+    // $nextYear = date('Y', strtotime('+1 Year'));
+    // $from = date('' . $thisYear . '-02-01');
+    // $to = date('' . $nextYear . '-02-01');
 
     if ($thisMonth <= 9) {   //GENAP
       $stSemester = "GENAP";
