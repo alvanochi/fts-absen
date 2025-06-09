@@ -206,18 +206,18 @@ class AkademikController extends Controller
         $label = array();
         foreach ($dummyAll as $key) {
           $label[] = array(
-            "id" => $key['id'],
-            "course_code" => $key['course_code'],
-            "curr_code" => $key['curr_code'],
-            'academic_year' => $key['academic_year'],
-            'semester' => $key['semester'],
-            "name" => $key['matkul']['name'],
-            "sks" => $key['matkul']['credit'],
-            "class" => $key['class'],
-            "day" => $key['on_day'],
-            "from_time" => $key['from_time'],
-            "until_time" => $key['until_time'],
-            "class_room" => $key['classroom']
+            "id" => $key['id'] ?? "",
+            "course_code" => $key['course_code'] ?? "",
+            "curr_code" => $key['curr_code'] ?? "",
+            'academic_year' => $key['academic_year'] ?? "",
+            'semester' => $key['semester'] ?? "",
+            "name" => $key['matkul']['name'] ?? "",
+            "sks" => $key['matkul']['credit'] ?? "",
+            "class" => $key['class'] ?? "",
+            "day" => $key['on_day'] ?? "",
+            "from_time" => $key['from_time'] ?? "",
+            "until_time" => $key['until_time'] ?? "",
+            "class_room" => $key['classroom'] ?? ""
           );
         }
 
@@ -239,6 +239,7 @@ class AkademikController extends Controller
       }
     } catch (\Exception $e) {
       // return ResponseBuilder::success(200, "error", null);
+      dd($e);
       return response()->json([
         "Status" => array(
           "success" => true,
@@ -410,16 +411,16 @@ class AkademikController extends Controller
           "semester" => $key['semester'],
           "course_code" => $key['course_code'],
           "curr_code" => $key['curr_code'],
-          "name_matkul" => $key['matkul']['name'],
-          "sks" => $key['matkul']['credit'],
-          "class" => $key['class'],
-          "day" => $key['on_day'],
-          "from_time" => $key['from_time'],
-          "until_time" => $key['until_time'],
-          "class_room" => $key['classroom'],
-          "pertemuan" => $pertemuan,
-          "pertemuan_statusKelas" => $pertemuan_statusKelas,
-          "persentase" => $persen
+          "name_matkul" => $key['matkul']['name'] ?? "",
+          "sks" => $key['matkul']['credit'] ?? "",
+          "class" => $key['class'] ?? "",
+          "day" => $key['on_day'] ?? "",
+          "from_time" => $key['from_time'] ?? "",
+          "until_time" => $key['until_time'] ?? "",
+          "class_room" => $key['classroom'] ?? "",
+          "pertemuan" => $pertemuan ?? "",
+          "pertemuan_statusKelas" => $pertemuan_statusKelas ?? "",
+          "persentase" => $persen ?? ""
         );
       }
 
@@ -437,6 +438,7 @@ class AkademikController extends Controller
         return ResponseBuilder::success(200, "success", $hasilModif);
       }
     } catch (\Exception $e) {
+      dd($e);
       return ResponseBuilder::success(200, "error", null);
     }
   }
