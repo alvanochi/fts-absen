@@ -1,0 +1,15 @@
+vendor/
+node_modules/
+.git/
+.env
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+tests/
+docker/
+*.md
+.gitignore
+.editorconfig
+.styleci.yml
+phpunit.xml

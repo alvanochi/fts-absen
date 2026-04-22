@@ -177,7 +177,7 @@ class PembelajaranController extends Controller
                 $filename = basename($files->getClientOriginalName(), '.' . $files->getClientOriginalExtension());
                 $files->move(storage_path('app/public/pelanggaran/photo/'), $filename . '.' . $files->getClientOriginalExtension());
                 $result[$key] = $filename . '.' . $files->getClientOriginalExtension();
-            } elseif ($request->input($key) != null) {
+            } elseif ($request->input($key) !== null) {
                 $result[$key] = $request->input($key);
             } else {
                 // $result[$key] = $request->input($key) ? $request->input($key) : '-';
@@ -186,7 +186,7 @@ class PembelajaranController extends Controller
 
         $thisYear = DATE('Y');
         if (!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')) {
-            return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
+            return ResponseBuilder::success(200, "Error, Lecture, Dosen, Matkul, atau Kelas belum terisi", null);
         }
 
         // $prosesPertemuan = Pembelajaran::where(DB::raw('YEAR(created_at)'), '=', $thisYear);
@@ -240,7 +240,7 @@ class PembelajaranController extends Controller
                 $filename = basename($files->getClientOriginalName(), '.' . $files->getClientOriginalExtension());
                 $files->move(storage_path('app/public/pelanggaran/photo/'), $filename . '.' . $files->getClientOriginalExtension());
                 $result[$key] = $filename . '.' . $files->getClientOriginalExtension();
-            } elseif ($request->input($key) != null) {
+            } elseif ($request->input($key) !== null) {
                 $result[$key] = $request->input($key);
             } else {
                 // $result[$key] = $request->input($key) ? $request->input($key) : '-';

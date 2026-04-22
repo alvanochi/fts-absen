@@ -86,3 +86,4 @@ Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('/refresh', 'Api\AuthController@refresh');   
     
 });
+

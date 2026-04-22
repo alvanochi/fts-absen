@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 
 use App\Http\Helper\ResponseBuilder;
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-     //Validate data
+        //Validate data
         $data = $request->only('name', 'email', 'password');
         $validator = Validator::make($data, [
             'name' => 'required|string',
@@ -33,9 +33,9 @@ class AuthController extends Controller
 
         //Request is valid, create new user
         $user = User::create([
-         'name' => $request->name,
-         'email' => $request->email,
-         'password' => bcrypt($request->password)
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
         ]);
 
         //User created, return success response
@@ -45,7 +45,7 @@ class AuthController extends Controller
             'data' => $user
         ], Response::HTTP_OK);
     }
- 
+
     public function authenticate(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -64,46 +64,45 @@ class AuthController extends Controller
         //Request is validated
         //Crean token
         try {
-            if (! $token = JWTAuth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
-                 'status' => 400,
-                 'message' => 'Login credentials are invalid.',
-                 'data' => []
+                    'status' => 400,
+                    'message' => 'Login credentials are invalid.',
+                    'data' => []
                 ], 200);
             }
         } catch (JWTException $e) {
-            return $credentials;
             return response()->json([
-                 'status' => 200,
-                 'message' => 'Could not create token.',
-                 'data' => []
-                ], 200);
+                'status' => 500,
+                'message' => 'Could not create token.',
+                'data' => []
+            ], 500);
         }
-  
-   //Token created, return with success response and jwt token
+
+        //Token created, return with success response and jwt token
         $user = JWTAuth::user();
- 
-        return ResponseBuilder::success(200, "success", [ 
+
+        return ResponseBuilder::success(200, "success", [
             'user' => $user,
             'token' => $token,
-        ]); 
+        ]);
     }
- 
+
     public function logout(Request $request)
     {
         //valid credential
         $validator = Validator::make($request->only('token'), [
-            
+
         ]);
 
         //Send failed response if request is not valid
-        if ($validator->fails()) { 
-            return ResponseBuilder::success(200, "error", $validator->messages()); 
+        if ($validator->fails()) {
+            return ResponseBuilder::success(200, "error", $validator->messages());
         }
 
         //Request is validated, do logout        
         try {
-            JWTAuth::invalidate($request->token); 
+            JWTAuth::invalidate($request->token);
             return response()->json([
                 'success' => true,
                 'message' => 'User has been logged out'
@@ -120,22 +119,22 @@ class AuthController extends Controller
     {
 
         $validator = Validator::make($request->only('token'), []);
-        if ($validator->fails()) { 
-            return ResponseBuilder::success(200, "error", $validator->messages()); 
+        if ($validator->fails()) {
+            return ResponseBuilder::success(200, "error", $validator->messages());
         }
-        return ResponseBuilder::success(200, "success", [ 
+        return ResponseBuilder::success(200, "success", [
             'user' => JWTAuth::user(),
-            'token' => JWTAuth::refresh(), 
-        ]);   
-    } 
- 
+            'token' => JWTAuth::refresh(),
+        ]);
+    }
+
     public function get_user(Request $request)
     {
         $validator = Validator::make($request->only('token'), []);
-        if ($validator->fails()) { 
-            return ResponseBuilder::success(200, "error", $validator->messages()); 
+        if ($validator->fails()) {
+            return ResponseBuilder::success(200, "error", $validator->messages());
         }
- 
-        return ResponseBuilder::success(200, "success", JWTAuth::user());  
+
+        return ResponseBuilder::success(200, "success", JWTAuth::user());
     }
 }
