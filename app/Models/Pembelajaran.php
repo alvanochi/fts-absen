@@ -66,4 +66,9 @@ class Pembelajaran extends Model
     {
         return DB::getSchemaBuilder()->getColumnListing('pembelajaran');
     }  
+
+    public function getIdMatkulAttribute($value)
+    {
+        return trim(strtoupper($value));
+    }
 }

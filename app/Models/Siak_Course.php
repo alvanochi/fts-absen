@@ -22,6 +22,6 @@ class Siak_Course extends Model
 
     public function getCodeAttribute($value)
     {
-        return trim($value);
+        return trim(strtoupper($value));
     }
 }
