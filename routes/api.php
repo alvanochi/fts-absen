@@ -25,6 +25,7 @@ Route::post('/register', 'Api\AuthController@register');
 
 // for Absensi mahasiswa
 
+    Route::get('/pembelajaran/debug/{code}', 'Api\PembelajaranController@debugCourse');
     Route::get('/pembelajaran/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');  
     Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
     Route::get('/pembelajaran', 'Api\PembelajaranController@index');  

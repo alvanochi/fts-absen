@@ -258,14 +258,21 @@ class PembelajaranController extends Controller
         if ($data) {
             $data->delete();
 
-            $dataAbsen = Absensi::where('id_pembelajaran', $id)->delete();
-            if ($dataAbsen) {
-                return ResponseBuilder::success(200, "success", []);
-            } else {
-                return ResponseBuilder::success(200, "error, delete Absen", []);
-            }
+            Absensi::where('id_pembelajaran', $id)->delete();
+            return ResponseBuilder::success(200, "success", []);
         } else {
             return ResponseBuilder::success(200, "error, delete Pembelajaran", []);
         }
+    }
+
+    public function debugCourse($code)
+    {
+        $course = \App\Models\Siak_Course::where('code', $code)->first();
+        $raw = \Illuminate\Support\Facades\DB::connection('second_db')->select("SELECT * FROM siak_course WHERE code LIKE '%" . $code . "%'");
+        return response()->json([
+            'code' => $code,
+            'eloquent' => $course,
+            'raw' => $raw
+        ]);
     }
 }
