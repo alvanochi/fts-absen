@@ -29,4 +29,8 @@ class Simpeg_Pegawai extends Model
         return DB::getSchemaBuilder()->getColumnListing('simpeg_pegawai');
     }  
 
+    public function getNipAttribute($value)
+    {
+        return trim($value);
+    }
 }

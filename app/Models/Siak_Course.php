@@ -20,4 +20,8 @@ class Siak_Course extends Model
         return DB::getSchemaBuilder()->getColumnListing('siak_course');
     }  
 
+    public function getCodeAttribute($value)
+    {
+        return trim($value);
+    }
 }
