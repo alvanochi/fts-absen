@@ -23,26 +23,32 @@ Route::post('/register', 'Api\AuthController@register');
 
 
 
+// for Absensi mahasiswa — DIKUNCI verify.tias (butuh token tias-backend yg valid).
+// Sebelumnya endpoint2 ini TANPA proteksi sama sekali & nik_dosen/npm cuma dipercaya
+// dari body request (siapapun bisa generate sesi/absen atas nama orang lain tanpa
+// login). Lihat app/Http/Middleware/VerifyTiasToken.php.
+Route::group(['middleware' => ['verify.tias']], function () {
+    Route::get('/pembelajaran/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');
+    Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');
+    Route::get('/pembelajaran', 'Api\PembelajaranController@index');
+    Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');
+    Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');
+
+    Route::get('/absensi', 'Api\AbsensiController@index');
+    Route::post('/absensi/store', 'Api\AbsensiController@store');
+    Route::get('/absensi/scanqr', 'Api\AbsensiController@scanQr');
+    Route::post('/absensi/scan-qr', 'Api\AbsensiController@scanQr');
+    Route::get('/absensi/show-qr', 'Api\AbsensiController@showQr');
+    Route::get('/absensi/download-qr', 'Api\AbsensiController@downloadQr');
+    Route::post('/absensi/update/{id}', 'Api\AbsensiController@update');
+    Route::delete('/absensi/delete/{id}', 'Api\AbsensiController@delete');
+
+    Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');
+    Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');
+    Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');
+});
 // for Absensi mahasiswa
 
-    Route::get('/pembelajaran/cek-pertemuan', 'Api\PembelajaranController@cekPertemuan');  
-    Route::post('/pembelajaran/store', 'Api\PembelajaranController@store');  
-    Route::get('/pembelajaran', 'Api\PembelajaranController@index');  
-    Route::post('/pembelajaran/update/{id}', 'Api\PembelajaranController@update');  
-    Route::delete('/pembelajaran/delete/{id}', 'Api\PembelajaranController@delete');   
-
-
-    Route::get('/absensi', 'Api\AbsensiController@index');   
-    Route::post('/absensi/store', 'Api\AbsensiController@store'); 
-    Route::get('/absensi/scanqr', 'Api\AbsensiController@scanQr');  
-    Route::post('/absensi/scan-qr', 'Api\AbsensiController@scanQr'); 
-    Route::get('/absensi/show-qr', 'Api\AbsensiController@showQr'); 
-    Route::get('/absensi/download-qr', 'Api\AbsensiController@downloadQr'); 
-    Route::post('/absensi/update/{id}', 'Api\AbsensiController@update');  
-    Route::delete('/absensi/delete/{id}', 'Api\AbsensiController@delete');  
-
-// for Absensi mahasiswa
- 
 
 // for absensi Jadwal meeting
     Route::get('/meeting/cek-pertemuan', 'Api\MeetingController@cekPertemuan');  
@@ -70,13 +76,9 @@ Route::post('/register', 'Api\AuthController@register');
     Route::delete('/absensi-meeting/delete/{id}', 'Api\AbsensiMeetController@delete'); 
 // for absensi Jadwal meeting
 
-    
 
-    Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');  
-    Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');  
-    Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');  
 
-    Route::get('/data-mhs', 'Api\AkademikController@dataMhs'); 
+    Route::get('/data-mhs', 'Api\AkademikController@dataMhs');
     Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
     Route::get('/kelas', 'Api\AkademikController@kelas');   
 
