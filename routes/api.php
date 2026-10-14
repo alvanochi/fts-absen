@@ -85,9 +85,13 @@ Route::group(['middleware' => ['verify.tias']], function () {
 
 
 
+// Lookup data mahasiswa/dosen/kelas -- bukan presensi, tapi tetap data internal,
+// jadi ikut dikunci verify.tias juga (konsisten, sebelumnya publik juga).
+Route::group(['middleware' => ['verify.tias']], function () {
     Route::get('/data-mhs', 'Api\AkademikController@dataMhs');
-    Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');  
-    Route::get('/kelas', 'Api\AkademikController@kelas');   
+    Route::get('/dosen-for-mk', 'Api\AkademikController@dosenMk');
+    Route::get('/kelas', 'Api\AkademikController@kelas');
+});
 
 Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('/logout', 'Api\AuthController@logout');
