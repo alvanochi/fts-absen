@@ -82,14 +82,24 @@ class AbsensiController extends Controller
     } 
 
     public function store(Request $request)
-    {  
-        date_default_timezone_set('Asia/Jakarta'); 
-        $result = []; 
-        $npm = $request->input('npm'); 
-        if(!$npm){
-            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
+    {
+        date_default_timezone_set('Asia/Jakarta');
+
+        // Beda dari scanQr() -- ini dipakai DOSEN nambah/tandai kehadiran mahasiswa LAIN
+        // secara manual (lihat fe-ucl tambah-mhs.jsx), bukan mahasiswa absen sendiri, jadi
+        // npm di body memang boleh beda dari identitas pemanggil -- yang perlu dipastikan
+        // cuma pemanggilnya benar dosen/admin (bukan tanpa-login/mahasiswa sembarangan).
+        $tiasRole = $request->attributes->get('tias_user')['role'] ?? null;
+        if (!in_array($tiasRole, ['Dosen', 'Dosen_Ext', 'Admin'])) {
+            return response()->json(['status' => 403, 'message' => 'Hanya dosen atau admin yang boleh mengisi presensi manual.', 'data' => null], 403);
         }
- 
+
+        $result = [];
+        $npm = $request->input('npm');
+        if(!$npm){
+            return ResponseBuilder::success(200, "failed, Npm di masukan", null);
+        }
+
         foreach (Absensi::getTableColumns() as $key) {  
 
             if ($request->file() != null && $request->file($key) != null) {

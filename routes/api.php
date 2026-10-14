@@ -50,30 +50,37 @@ Route::group(['middleware' => ['verify.tias']], function () {
 // for Absensi mahasiswa
 
 
-// for absensi Jadwal meeting
-    Route::get('/meeting/cek-pertemuan', 'Api\MeetingController@cekPertemuan');  
-    Route::post('/meeting/store', 'Api\MeetingController@store');  
-    Route::get('/meeting', 'Api\MeetingController@index');   
-    Route::get('/meeting/find', 'Api\MeetingController@find');  
-    Route::post('/meeting/update/{id}', 'Api\MeetingController@update');  
-    Route::delete('/meeting/delete/{id}', 'Api\MeetingController@delete');   
+// for absensi Jadwal meeting — DIKUNCI verify.tias juga (pola sama persis seperti
+// presensi perkuliahan: sebelumnya tanpa proteksi sama sekali). Beda dari
+// pembelajaran/absensi di atas, identitas di sini (nm_kegiatan/code/name_absen) tidak
+// langsung memetakan ke 1 field NIP/NPM tunggal milik 1 role tertentu (dipakai lintas
+// admin/dosen/mahasiswa/pegawai) -- jadi scope fix ini CUMA wajibkan login valid,
+// BELUM membedah ulang model kepemilikan undangan/absen per endpoint-nya.
+Route::group(['middleware' => ['verify.tias']], function () {
+    Route::get('/meeting/cek-pertemuan', 'Api\MeetingController@cekPertemuan');
+    Route::post('/meeting/store', 'Api\MeetingController@store');
+    Route::get('/meeting', 'Api\MeetingController@index');
+    Route::get('/meeting/find', 'Api\MeetingController@find');
+    Route::post('/meeting/update/{id}', 'Api\MeetingController@update');
+    Route::delete('/meeting/delete/{id}', 'Api\MeetingController@delete');
 
     Route::post('/generate-pamplet', 'Api\ImageController@generateImage');
     Route::post('/generate-certificate', 'Api\ImageController@generateCertificate');
 
-    Route::get('/meeting-invite', 'Api\InviteMeetController@index');  
-    Route::post('/meeting-invite/store', 'Api\InviteMeetController@store');  
-    Route::post('/meeting-invite/update/{id}', 'Api\InviteMeetController@update');  
-    Route::delete('/meeting-invite/delete/{id}', 'Api\InviteMeetController@delete');  
+    Route::get('/meeting-invite', 'Api\InviteMeetController@index');
+    Route::post('/meeting-invite/store', 'Api\InviteMeetController@store');
+    Route::post('/meeting-invite/update/{id}', 'Api\InviteMeetController@update');
+    Route::delete('/meeting-invite/delete/{id}', 'Api\InviteMeetController@delete');
 
-    Route::get('/absensi-meeting', 'Api\AbsensiMeetController@index');   
-    Route::post('/absensi-meeting/store', 'Api\AbsensiMeetController@store'); 
-    Route::get('/absensi-meeting/scanqr', 'Api\AbsensiMeetController@scanQr');  
-    Route::post('/absensi-meeting/scan-qr', 'Api\AbsensiMeetController@scanQr'); 
-    Route::get('/absensi-meeting/show-qr', 'Api\AbsensiMeetController@showQr'); 
-    Route::get('/absensi-meeting/download-qr', 'Api\AbsensiMeetController@downloadQr'); 
-    Route::post('/absensi-meeting/update/{id}', 'Api\AbsensiMeetController@update');  
-    Route::delete('/absensi-meeting/delete/{id}', 'Api\AbsensiMeetController@delete'); 
+    Route::get('/absensi-meeting', 'Api\AbsensiMeetController@index');
+    Route::post('/absensi-meeting/store', 'Api\AbsensiMeetController@store');
+    Route::get('/absensi-meeting/scanqr', 'Api\AbsensiMeetController@scanQr');
+    Route::post('/absensi-meeting/scan-qr', 'Api\AbsensiMeetController@scanQr');
+    Route::get('/absensi-meeting/show-qr', 'Api\AbsensiMeetController@showQr');
+    Route::get('/absensi-meeting/download-qr', 'Api\AbsensiMeetController@downloadQr');
+    Route::post('/absensi-meeting/update/{id}', 'Api\AbsensiMeetController@update');
+    Route::delete('/absensi-meeting/delete/{id}', 'Api\AbsensiMeetController@delete');
+});
 // for absensi Jadwal meeting
 
 
