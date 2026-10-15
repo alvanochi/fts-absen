@@ -464,37 +464,6 @@ class AkademikController extends Controller
     }
   }
 
-  /**
-   * Daftar department_code yang BENERAN valid dipakai di listDosenPertemuan/listPertemuan
-   * (diambil dari siak_curriculum, sumber yg sama persis dipakai query recap-nya) --
-   * BUKAN dari /kategori/unit tias-backend, yg isinya kode fakultas (FTS/FTI/dll, format
-   * beda dgn department_code prodi spt FT_TI) dan selama ini bikin dropdown "Departemen"
-   * di admin Rekap Presensi selalu kosong apapun yg dipilih.
-   */
-  public function listDepartemen(Request $request)
-  {
-    $tiasUser = $request->attributes->get('tias_user');
-    $scope = DepartmentScope::resolve($tiasUser);
-    if (!$scope['allowed']) {
-      return response()->json(['status' => 403, 'message' => 'Hanya admin yang boleh mengakses ini.', 'data' => null], 403);
-    }
-
-    // Admin biasa (non-superadmin) dikunci ke prodinya sendiri di backend recap-nya --
-    // cukup kasih tau kode prodinya sendiri, tidak perlu daftar lengkap.
-    if ($scope['code'] !== null) {
-      return response()->json(['status' => 200, 'data' => [['code' => $scope['code']]]]);
-    }
-
-    $codes = Siak_Curriculum::select('department_code')
-      ->whereNotNull('department_code')
-      ->where('department_code', '!=', '')
-      ->distinct()
-      ->orderBy('department_code')
-      ->pluck('department_code');
-
-    return response()->json(['status' => 200, 'data' => $codes->map(fn ($c) => ['code' => $c])->values()]);
-  }
-
   public function listDosenPertemuan(Request $request)
   {
     try {
