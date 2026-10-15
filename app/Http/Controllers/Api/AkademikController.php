@@ -15,7 +15,6 @@ use App\Models\Siak_Lecture;
 use App\Models\Siak_Lecturer;
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
-use App\Models\Siak_Course;
 use App\Models\Siak_Curriculum;
 
 
@@ -27,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Yajra\Datatables\Datatables;
 use App\Http\Helper\ResponseBuilder;
+use App\Http\Helper\SiakV2Matkul;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -820,23 +820,23 @@ class AkademikController extends Controller
     // ]);
 
 
-    // CATATAN: sempat dicoba ambil nama matkul dari SIAK v2 (be-siakad/SiakV2Matkul), tapi
-    // server fts-absen ternyata TIDAK PUNYA akses jaringan keluar ke api-siak.uika-bogor.ac.id
-    // (cURL error 28, connection timed out, konsisten di semua percobaan). Dikembalikan ke
-    // siak_course lokal (second_db/SIAK v1, cepat), TAPI dibikin null-safe -- sebelumnya
-    // ->first()->toArray() langsung crash 500 kalau matkul tidak ditemukan (mis. kode
-    // matkul baru yg SIAK v2-only). "class"/"academic_year" tidak perlu join sama sekali --
-    // keduanya cuma echo balik dari input request, bukan data hasil lookup.
-    $siakCourse = Siak_Course::where('code', $id_matkul)
-      ->where('curr_code', $cekNewKurikulum)
-      ->first();
+    // Nama matakuliah diambil dari SIAK v2 (be-siakad) lewat SiakV2Matkul, BUKAN dari
+    // siak_course lokal -- siak_course dibaca via koneksi langsung ke DB siakuika (SIAK v1)
+    // yg sudah tidak disinkronkan sejak migrasi ke SIAK v2, jadi matkul baru pasca-migrasi
+    // tidak akan pernah ketemu di sana. SiakV2Matkul null-safe (tidak crash kalau matkul
+    // tidak ditemukan). "class"/"academic_year" tidak perlu join sama sekali -- keduanya
+    // cuma echo balik dari input request, bukan data hasil lookup.
+    // CATATAN: SIAK_V2_API_URL HARUS IP lokal (bukan domain publik) -- domain publik
+    // (api-siak.uika-bogor.ac.id) tidak bisa diakses dari server ini (firewall jaringan
+    // kampus), sudah dikonfirmasi lewat tes curl langsung dari server.
+    $siakMatkul = SiakV2Matkul::find($id_matkul);
 
     $dataMatkul = [
       'code' => $id_matkul,
       'curr_code' => $cekNewKurikulum,
-      'name' => $siakCourse->name ?? null,
-      'credit' => $siakCourse->credit ?? null,
-      'semester' => $siakCourse->semester ?? null,
+      'name' => $siakMatkul['name'] ?? null,
+      'credit' => $siakMatkul['credit'] ?? null,
+      'semester' => null,
       'academic_year' => $thnAkademik,
       'class' => $kelas,
       'on_day' => null,
