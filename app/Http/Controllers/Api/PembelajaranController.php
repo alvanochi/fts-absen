@@ -9,7 +9,6 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Helper\ResponseBuilder;
-use App\Http\Helper\SiakV2Matkul;
 use Illuminate\Support\Facades\DB;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str;
@@ -49,7 +48,7 @@ class PembelajaranController extends Controller
             'token',
             'created_at',
             'deleted_at'
-        ])->with('dosen', 'dosenPengganti');
+        ])->with('dosen', 'dosenPengganti', 'matkul');
 
         // Dosen/Dosen_Ext cuma boleh lihat presensi miliknya sendiri -- filter nik_dosen
         // dari client sebelumnya dipercaya mentah2 tanpa cek pemilik, jadi dosen manapun
@@ -90,20 +89,15 @@ class PembelajaranController extends Controller
         }
 
         if ($request->input('dataTable') == true) {
-            // Nama matkul diambil dari SIAK v2 (be-siakad), bukan relasi Siak_Course lokal
-            // (lihat SiakV2Matkul) -- siak_course beku sejak migrasi v2, kode matkul baru
-            // (mis. SPTJJ) tidak akan pernah ketemu di sana dan nama jadi kosong di tabel.
-            // SEMUA kode unik di-lookup SEKALI secara paralel (findMany/Http::pool) SEBELUM
-            // Datatables jalan -- "Daftar Hadir" minta length=-1 (tanpa pagination, bisa
-            // ratusan baris riwayat), jadi lookup satu-satu per baris di dalam addColumn
-            // bikin halaman menggantung lama (ini pernah kejadian, lihat riwayat commit).
-            $uniqueKodeMatkul = (clone $data)->pluck('id_matkul')->filter()->unique()->values()->all();
-            $matkulCache = SiakV2Matkul::findMany($uniqueKodeMatkul);
+            // CATATAN: sempat dicoba ambil nama matkul dari SIAK v2 (be-siakad) di sini,
+            // tapi server fts-absen ternyata TIDAK PUNYA akses jaringan keluar ke
+            // api-siak.uika-bogor.ac.id (cURL error 28, connection timed out, konsisten
+            // di semua percobaan) -- beda dari browser client yg bisa akses langsung.
+            // Jadi utk tabel Daftar Hadir dikembalikan ke relasi Siak_Course lokal (cepat,
+            // tapi kosong utk kode matkul baru yg SIAK v2-only, mis. SPTJJ -- known gap,
+            // lihat juga AkademikController@listAbsenMatkul utk kasus serupa).
             return $dummyTable = Datatables::of($data)
                 ->addIndexColumn()
-                ->addColumn('matkul', function ($row) use ($matkulCache) {
-                    return $matkulCache[$row->id_matkul] ?? null;
-                })
                 // ->addColumn('qr_code', function ($row) {
                 //     return QrCode::generate(
                 //         $row['token'],
