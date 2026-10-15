@@ -46,6 +46,7 @@ Route::group(['middleware' => ['verify.tias']], function () {
     Route::get('/pembelajaran/list-pertemuan', 'Api\AkademikController@listPertemuan');
     Route::get('/pembelajaran/list-dosen-pertemuan', 'Api\AkademikController@listDosenPertemuan');
     Route::get('/pembelajaran/list-absen', 'Api\AkademikController@listAbsenMatkul');
+    Route::get('/pembelajaran/list-departemen', 'Api\AkademikController@listDepartemen');
 });
 // for Absensi mahasiswa
 
