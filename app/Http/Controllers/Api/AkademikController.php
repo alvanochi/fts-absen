@@ -552,7 +552,15 @@ class AkademikController extends Controller
             $query->select('id', 'academic_year', 'semester', 'department_code', 'course_code', 'curr_code', 'lecturer_code', 'class');
 
             $query->where('academic_year', $thnAkademik);
-            $query->where('curr_code', $cekNewKurikulum['curr_code']);
+            if ($cekNewKurikulum) {
+              $query->where('curr_code', $cekNewKurikulum->curr_code);
+            } else {
+              // Tidak ada data kurikulum lokal (siak_curriculum, SIAK v1) utk
+              // department_code ini -- sebelumnya crash (null['curr_code']), sekarang
+              // sengaja dibuat tidak match apapun (bukan ditampilkan semua) karena
+              // curr_code yg benar memang tidak diketahui.
+              $query->whereRaw('1 = 0');
+            }
             $query->orderByRaw("FIND_IN_SET(on_day, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu'), course_code ASC, from_time DESC, until_time DESC");
             $query->with([
               'matkul' => function ($exx) {
