@@ -49,6 +49,22 @@ class PembelajaranController extends Controller
             'created_at',
             'deleted_at'
         ])->with('dosen', 'dosenPengganti', 'matkul');
+
+        // Dosen/Dosen_Ext cuma boleh lihat presensi miliknya sendiri -- filter nik_dosen
+        // dari client sebelumnya dipercaya mentah2 tanpa cek pemilik, jadi dosen manapun
+        // bisa comot data (termasuk token QR) dosen lain cukup ganti nilai filter. Admin
+        // tetap bebas lintas dosen (dipakai rekap admin & form "ubah dosen pengampu").
+        $tiasUser = $request->attributes->get('tias_user');
+        $tiasRole = $tiasUser['role'] ?? null;
+        if (in_array($tiasRole, ['Dosen', 'Dosen_Ext'])) {
+            if (!$tiasUser['nip']) {
+                return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
+            }
+            $data->where('nik_dosen', $tiasUser['nip']);
+        } elseif ($tiasRole !== 'Admin') {
+            return response()->json(['status' => 403, 'message' => 'Akses ditolak.', 'data' => null], 403);
+        }
+
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
                 if ($filterField[$key] != null || $filterValue[$key] != null) {
@@ -184,8 +200,25 @@ class PembelajaranController extends Controller
             }
         }
 
+        // Identitas dosen WAJIB dari token terverifikasi (lihat VerifyTiasToken), BUKAN
+        // dari body request -- sebelumnya nik_dosen dipercaya mentah2 dari client,
+        // siapapun bisa generate sesi kelas atas nama dosen lain. Admin tetap boleh
+        // generate atas nama dosen manapun (lihat field "Dosen Pengganti" di form).
+        // id_lecture TETAP dari client (FK ke siak_lecture.id, jadwal yg dipilih dosen
+        // dari dropdown roster -- bukan field identitas, jadi tidak dipaksa dari token).
+        $tiasUser = $request->attributes->get('tias_user');
+        $tiasRole = $tiasUser['role'] ?? null;
+        if (in_array($tiasRole, ['Dosen', 'Dosen_Ext'])) {
+            if (!$tiasUser['nip']) {
+                return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
+            }
+            $result['nik_dosen'] = $tiasUser['nip'];
+        } elseif ($tiasRole !== 'Admin') {
+            return response()->json(['status' => 403, 'message' => 'Hanya dosen atau admin yang boleh membuat sesi presensi.', 'data' => null], 403);
+        }
+
         $thisYear = DATE('Y');
-        if (!$request->input('id_lecture') || !$request->input('nik_dosen') || !$request->input('id_matkul') || !$request->input('kelas')) {
+        if (!$result['id_lecture'] || !$result['nik_dosen'] || !$request->input('id_matkul') || !$request->input('kelas')) {
             return ResponseBuilder::success(200, "Error, Dosen atau Matkul belum terisi", null);
         }
 

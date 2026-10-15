@@ -82,14 +82,24 @@ class AbsensiController extends Controller
     } 
 
     public function store(Request $request)
-    {  
-        date_default_timezone_set('Asia/Jakarta'); 
-        $result = []; 
-        $npm = $request->input('npm'); 
-        if(!$npm){
-            return ResponseBuilder::success(200, "failed, Npm di masukan", null); 
+    {
+        date_default_timezone_set('Asia/Jakarta');
+
+        // Beda dari scanQr() -- ini dipakai DOSEN nambah/tandai kehadiran mahasiswa LAIN
+        // secara manual (lihat fe-ucl tambah-mhs.jsx), bukan mahasiswa absen sendiri, jadi
+        // npm di body memang boleh beda dari identitas pemanggil -- yang perlu dipastikan
+        // cuma pemanggilnya benar dosen/admin (bukan tanpa-login/mahasiswa sembarangan).
+        $tiasRole = $request->attributes->get('tias_user')['role'] ?? null;
+        if (!in_array($tiasRole, ['Dosen', 'Dosen_Ext', 'Admin'])) {
+            return response()->json(['status' => 403, 'message' => 'Hanya dosen atau admin yang boleh mengisi presensi manual.', 'data' => null], 403);
         }
- 
+
+        $result = [];
+        $npm = $request->input('npm');
+        if(!$npm){
+            return ResponseBuilder::success(200, "failed, Npm di masukan", null);
+        }
+
         foreach (Absensi::getTableColumns() as $key) {  
 
             if ($request->file() != null && $request->file($key) != null) {
@@ -178,22 +188,30 @@ class AbsensiController extends Controller
         date_default_timezone_set('Asia/Jakarta');
         $token = $request->input('token');
         $coordinate = $request->input('coordinate');
-        $npm = $request->input('npm');
         $st_absen = $request->input('status_absen');
-        if(!$token || !$coordinate || !$npm){
-            return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
+
+        // Identitas mahasiswa WAJIB dari token terverifikasi (lihat VerifyTiasToken),
+        // BUKAN dari body request -- sebelumnya npm cuma dipercaya mentah2 dari client
+        // (bahkan pengecekan "npm terdaftar?" di bawah ini sempat dimatikan/dikomentari),
+        // siapapun bisa absen pakai NPM siapapun tanpa jadi mahasiswa itu. Admin tetap
+        // boleh override (mis. absen manual) lewat npm di body.
+        $tiasUser = $request->attributes->get('tias_user');
+        $tiasRole = $tiasUser['role'] ?? null;
+        if ($tiasRole === 'Mahasiswa') {
+            if (!$tiasUser['npm']) {
+                return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NPM terdaftar.', 'data' => null], 403);
+            }
+            $npm = $tiasUser['npm'];
+        } elseif ($tiasRole === 'Admin') {
+            $npm = $request->input('npm');
+        } else {
+            return response()->json(['status' => 403, 'message' => 'Hanya mahasiswa atau admin yang boleh melakukan presensi.', 'data' => null], 403);
         }
 
-        // $cekNPM = Pmb_Candidate::where('student_code', $npm)->first();
-        // if(!$cekNPM){
-        //     return ResponseBuilder::success(200, "failed, NPM tidak di temukan", null); 
-        // }
-        // return response()->json([
-        //     "status" => 200,
-        //     "message" => "testing",   
-        //     "data" => $cekNPM
-        // ], 200); 
-        
+        if(!$token || !$coordinate || !$npm){
+            return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null);
+        }
+
         // FROM
         $coords = explode(",", $coordinate); 
         $lat1 = $coords[0];

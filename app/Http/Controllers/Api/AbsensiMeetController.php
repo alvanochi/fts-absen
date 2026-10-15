@@ -155,13 +155,39 @@ class AbsensiMeetController extends Controller
         date_default_timezone_set('Asia/Jakarta');
         $token = $request->input('token');
         $coordinate = $request->input('coordinate');
-        $code = $request->input('code');
         $st_absen = $request->input('status_absen');
-        $name_absen = $request->input('name_absen');
-        if(!$token || !$coordinate || !$code){
-            return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null); 
+
+        // undangan_meeting (InviteMeet) punya npm & nip_dosen -- 'code' di sini
+        // berperan sama kayak npm di presensi kuliah, cuma bisa isi salah satu dari
+        // keduanya tergantung role si peserta. Dipaksa dari identitas terverifikasi
+        // (lihat VerifyTiasToken) spt presensi kuliah, BUKAN dari body -- sebelumnya
+        // siapapun bisa absen pakai code/nama siapapun tanpa login. Admin tetap boleh
+        // override manual (absen manual).
+        $tiasUser = $request->attributes->get('tias_user');
+        $tiasRole = $tiasUser['role'] ?? null;
+        if (in_array($tiasRole, ['Dosen', 'Dosen_Ext'])) {
+            if (!$tiasUser['nip']) {
+                return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
+            }
+            $code = $tiasUser['nip'];
+            $name_absen = $tiasUser['nama_lengkap'];
+        } elseif ($tiasRole === 'Mahasiswa') {
+            if (!$tiasUser['npm']) {
+                return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NPM terdaftar.', 'data' => null], 403);
+            }
+            $code = $tiasUser['npm'];
+            $name_absen = $tiasUser['nama_lengkap'];
+        } elseif ($tiasRole === 'Admin') {
+            $code = $request->input('code');
+            $name_absen = $request->input('name_absen');
+        } else {
+            return response()->json(['status' => 403, 'message' => 'Role akun ini tidak diizinkan melakukan presensi rapat.', 'data' => null], 403);
         }
-        
+
+        if(!$token || !$coordinate || !$code){
+            return ResponseBuilder::success(200, "failed, Validasi Kurang Lengkap", null);
+        }
+
         // FROM
         $coords = explode(",", $coordinate); 
         $lat1 = $coords[0];
