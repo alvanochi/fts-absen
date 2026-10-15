@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Helper\ResponseBuilder;
+use App\Http\Helper\SiakV2Matkul;
 use Illuminate\Support\Facades\DB;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Str;
@@ -48,7 +49,7 @@ class PembelajaranController extends Controller
             'token',
             'created_at',
             'deleted_at'
-        ])->with('dosen', 'dosenPengganti', 'matkul');
+        ])->with('dosen', 'dosenPengganti');
 
         // Dosen/Dosen_Ext cuma boleh lihat presensi miliknya sendiri -- filter nik_dosen
         // dari client sebelumnya dipercaya mentah2 tanpa cek pemilik, jadi dosen manapun
@@ -89,8 +90,20 @@ class PembelajaranController extends Controller
         }
 
         if ($request->input('dataTable') == true) {
+            // Nama matkul diambil dari SIAK v2 (be-siakad), bukan relasi Siak_Course lokal
+            // (lihat SiakV2Matkul) -- siak_course beku sejak migrasi v2, kode matkul baru
+            // (mis. SPTJJ) tidak akan pernah ketemu di sana dan nama jadi kosong di tabel.
+            // Cache per-request supaya kode yg sama (banyak baris matkul sama) cuma 1x panggil.
+            $matkulCache = [];
             return $dummyTable = Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('matkul', function ($row) use (&$matkulCache) {
+                    $kode = $row->id_matkul;
+                    if (!array_key_exists($kode, $matkulCache)) {
+                        $matkulCache[$kode] = SiakV2Matkul::find($kode);
+                    }
+                    return $matkulCache[$kode];
+                })
                 // ->addColumn('qr_code', function ($row) {
                 //     return QrCode::generate(
                 //         $row['token'],
