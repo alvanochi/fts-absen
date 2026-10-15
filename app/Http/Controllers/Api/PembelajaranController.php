@@ -93,16 +93,16 @@ class PembelajaranController extends Controller
             // Nama matkul diambil dari SIAK v2 (be-siakad), bukan relasi Siak_Course lokal
             // (lihat SiakV2Matkul) -- siak_course beku sejak migrasi v2, kode matkul baru
             // (mis. SPTJJ) tidak akan pernah ketemu di sana dan nama jadi kosong di tabel.
-            // Cache per-request supaya kode yg sama (banyak baris matkul sama) cuma 1x panggil.
-            $matkulCache = [];
+            // SEMUA kode unik di-lookup SEKALI secara paralel (findMany/Http::pool) SEBELUM
+            // Datatables jalan -- "Daftar Hadir" minta length=-1 (tanpa pagination, bisa
+            // ratusan baris riwayat), jadi lookup satu-satu per baris di dalam addColumn
+            // bikin halaman menggantung lama (ini pernah kejadian, lihat riwayat commit).
+            $uniqueKodeMatkul = (clone $data)->pluck('id_matkul')->filter()->unique()->values()->all();
+            $matkulCache = SiakV2Matkul::findMany($uniqueKodeMatkul);
             return $dummyTable = Datatables::of($data)
                 ->addIndexColumn()
-                ->addColumn('matkul', function ($row) use (&$matkulCache) {
-                    $kode = $row->id_matkul;
-                    if (!array_key_exists($kode, $matkulCache)) {
-                        $matkulCache[$kode] = SiakV2Matkul::find($kode);
-                    }
-                    return $matkulCache[$kode];
+                ->addColumn('matkul', function ($row) use ($matkulCache) {
+                    return $matkulCache[$row->id_matkul] ?? null;
                 })
                 // ->addColumn('qr_code', function ($row) {
                 //     return QrCode::generate(
