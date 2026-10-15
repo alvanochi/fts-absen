@@ -56,17 +56,27 @@ class PembelajaranController extends Controller
         // tetap bebas lintas dosen (dipakai rekap admin & form "ubah dosen pengampu").
         $tiasUser = $request->attributes->get('tias_user');
         $tiasRole = $tiasUser['role'] ?? null;
+        $scopedNik = null;
         if (in_array($tiasRole, ['Dosen', 'Dosen_Ext'])) {
             if (!$tiasUser['nip']) {
                 return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
             }
-            $data->where('nik_dosen', $tiasUser['nip']);
+            // trim() -- nip dari /profile/getDataPribadi kadang ada spasi nyasar, client (fe-ucl)
+            // sendiri sudah trim() nip-nya sebelum kirim filter, jadi tanpa ini nilainya bisa
+            // beda persis dgn yg dikirim client meski sumbernya sama dan query jadi kosong.
+            $scopedNik = trim($tiasUser['nip']);
+            $data->where('nik_dosen', $scopedNik);
         } elseif ($tiasRole !== 'Admin') {
             return response()->json(['status' => 403, 'message' => 'Akses ditolak.', 'data' => null], 403);
         }
 
         if ($filterField && $filterValue) {
             foreach ($filterField as $key => $value) {
+                // nik_dosen sudah dipaksa dari identitas token di atas (utk Dosen/Dosen_Ext) --
+                // lewati filter client supaya tidak dobel-AND dgn nilai yg berpotensi beda format.
+                if ($scopedNik !== null && $value === 'nik_dosen') {
+                    continue;
+                }
                 if ($filterField[$key] != null || $filterValue[$key] != null) {
                     $data->where($value, '=', $filterValue[$key]);
                 }
@@ -212,7 +222,9 @@ class PembelajaranController extends Controller
             if (!$tiasUser['nip']) {
                 return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
             }
-            $result['nik_dosen'] = $tiasUser['nip'];
+            // trim() -- lihat catatan serupa di index(), nip dari /profile/getDataPribadi
+            // kadang ada spasi nyasar.
+            $result['nik_dosen'] = trim($tiasUser['nip']);
         } elseif ($tiasRole !== 'Admin') {
             return response()->json(['status' => 403, 'message' => 'Hanya dosen atau admin yang boleh membuat sesi presensi.', 'data' => null], 403);
         }

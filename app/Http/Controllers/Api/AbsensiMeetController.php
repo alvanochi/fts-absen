@@ -169,13 +169,15 @@ class AbsensiMeetController extends Controller
             if (!$tiasUser['nip']) {
                 return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
             }
-            $code = $tiasUser['nip'];
+            // trim() -- nip/npm dari /profile/getDataPribadi kadang ada spasi nyasar (kolom
+            // CHAR fixed-width di tias-backend), lihat catatan sama di PembelajaranController.
+            $code = trim($tiasUser['nip']);
             $name_absen = $tiasUser['nama_lengkap'];
         } elseif ($tiasRole === 'Mahasiswa') {
             if (!$tiasUser['npm']) {
                 return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NPM terdaftar.', 'data' => null], 403);
             }
-            $code = $tiasUser['npm'];
+            $code = trim($tiasUser['npm']);
             $name_absen = $tiasUser['nama_lengkap'];
         } elseif ($tiasRole === 'Admin') {
             $code = $request->input('code');

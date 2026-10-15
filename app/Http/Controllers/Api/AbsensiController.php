@@ -201,7 +201,9 @@ class AbsensiController extends Controller
             if (!$tiasUser['npm']) {
                 return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NPM terdaftar.', 'data' => null], 403);
             }
-            $npm = $tiasUser['npm'];
+            // trim() -- npm dari /profile/getDataPribadi kadang ada spasi nyasar (kolom
+            // CHAR fixed-width di tias-backend), lihat catatan sama di PembelajaranController.
+            $npm = trim($tiasUser['npm']);
         } elseif ($tiasRole === 'Admin') {
             $npm = $request->input('npm');
         } else {
