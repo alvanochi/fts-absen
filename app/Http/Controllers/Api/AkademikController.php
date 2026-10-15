@@ -15,7 +15,6 @@ use App\Models\Siak_Lecture;
 use App\Models\Siak_Lecturer;
 use App\Models\Pembelajaran;
 use App\Models\Absensi;
-use App\Models\Siak_Course;
 use App\Models\Siak_Curriculum;
 
 
@@ -820,22 +819,44 @@ class AkademikController extends Controller
     // ]);
 
 
-    $dataMatkul = Siak_Course::select([
-      'siak_course.code',
-      'siak_course.curr_code',
-      'siak_course.name',
-      'siak_course.credit',
-      'siak_course.semester',
-      // 'siak_lecture.academic_year',
-      DB::raw(' "' . $thnAkademik . '" as academic_year'),
-      'siak_lecture.class',
-      'siak_lecture.on_day',
-    ])
-      ->join('siak_lecture', 'siak_course.code', '=', 'siak_lecture.course_code')
-      ->where('siak_course.curr_code', $cekNewKurikulum)
-      ->where('code', $id_matkul)
-      ->where('siak_lecture.class', $kelas)
-      ->first()->toArray();
+    // Nama matakuliah diambil dari SIAK v2 (be-siakad), BUKAN dari siak_course lokal --
+    // siak_course dibaca via koneksi langsung ke DB siakuika (SIAK v1) yg sudah tidak
+    // disinkronkan sejak migrasi ke SIAK v2, jadi matkul baru pasca-migrasi tidak akan
+    // pernah ketemu di sana (sebelumnya ->first()->toArray() di baris ini crash 500 kalau
+    // matkul tidak ditemukan). "class"/"academic_year" tidak perlu join sama sekali --
+    // keduanya cuma echo balik dari input request, bukan data hasil lookup.
+    $matkulName = null;
+    $matkulSks = null;
+    try {
+      $siakV2BaseUrl = rtrim(env('SIAK_V2_API_URL', ''), '/');
+      if ($siakV2BaseUrl) {
+        $siakResponse = Http::timeout(8)->get($siakV2BaseUrl . '/public/mata-kuliah', [
+          'search' => $id_matkul,
+        ]);
+        if ($siakResponse->successful()) {
+          foreach (($siakResponse->json('data') ?? []) as $row) {
+            if (($row['kode'] ?? null) === $id_matkul) {
+              $matkulName = $row['nama'] ?? null;
+              $matkulSks = $row['totalSks'] ?? null;
+              break;
+            }
+          }
+        }
+      }
+    } catch (\Exception $e) {
+      Log::error('listAbsenMatkul: gagal ambil data mata kuliah dari SIAK v2: ' . $e->getMessage());
+    }
+
+    $dataMatkul = [
+      'code' => $id_matkul,
+      'curr_code' => $cekNewKurikulum,
+      'name' => $matkulName,
+      'credit' => $matkulSks,
+      'semester' => null,
+      'academic_year' => $thnAkademik,
+      'class' => $kelas,
+      'on_day' => null,
+    ];
 
     if ($request->input('dataTable') == true) {
       return $dummyTable = Datatables::of($dummy)
