@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Http;
 use Yajra\Datatables\Datatables;
 use App\Http\Helper\ResponseBuilder;
 use App\Http\Helper\SiakV2Matkul;
+use App\Http\Helper\DepartmentScope;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -254,6 +255,17 @@ class AkademikController extends Controller
   public function listPertemuan(Request $request)
   {
     try {
+      // Dosen/Dosen_Ext cuma boleh lihat rekap pertemuan miliknya sendiri -- "code"
+      // sebelumnya dipercaya mentah2 dari client, dosen manapun bisa ganti nilainya dan
+      // lihat rekap dosen lain. Admin/superadmin tetap bebas pilih dosen manapun (dipakai
+      // drill-down dari Rekap Presensi admin). CATATAN: pembatasan per-prodi utk Admin di
+      // sini BELUM diterapkan -- butuh pemetaan dosen->prodi yg andal (format kode prodi
+      // SIAK lokal blm tentu sama dgn department_code tias-backend di luar TI, lihat juga
+      // catatan serupa di plan "Pembatasan Akses Admin per Prodi"), jadi admin manapun
+      // msh bisa lihat rekap dosen di luar prodinya lewat halaman ini -- known gap.
+      $tiasUser = $request->attributes->get('tias_user');
+      $tiasRole = $tiasUser['role'] ?? null;
+
       $filterField = $request->input('filter');
       $filterValue = $request->input('filterValue');
 
@@ -261,6 +273,15 @@ class AkademikController extends Controller
       $academic_year = $request->input('academic_year');
       // $semester = $request->input('semester');
       $code = $request->input('code');
+
+      if (in_array($tiasRole, ['Dosen', 'Dosen_Ext'])) {
+        if (!$tiasUser['nip']) {
+          return response()->json(['status' => 403, 'message' => 'Akun ini belum punya NIP terdaftar.', 'data' => null], 403);
+        }
+        $code = trim($tiasUser['nip']);
+      } elseif (!DepartmentScope::isSuperAdmin($tiasUser) && $tiasRole !== 'Admin') {
+        return response()->json(['status' => 403, 'message' => 'Akses ditolak.', 'data' => null], 403);
+      }
 
       $thisMonth = DATE("n");
       $thisYear = DATE("Y");
@@ -447,6 +468,16 @@ class AkademikController extends Controller
   {
     try {
 
+      // Rekap presensi lintas-dosen -- khusus Admin/superadmin, DAN admin non-superadmin
+      // WAJIB dikunci ke department_code miliknya sendiri (bukan dari input client),
+      // supaya tidak bisa lihat rekap prodi lain cuma dgn ganti filter departement_code.
+      // Lihat DepartmentScope (pola sama seperti resolveDepartmentScope di tias-backend).
+      $tiasUser = $request->attributes->get('tias_user');
+      $scope = DepartmentScope::resolve($tiasUser);
+      if (!$scope['allowed']) {
+        return response()->json(['status' => 403, 'message' => 'Hanya admin yang boleh mengakses rekap ini.', 'data' => null], 403);
+      }
+
       $filterField = $request->input('filter');
       $filterValue = $request->input('filterValue');
 
@@ -463,6 +494,12 @@ class AkademikController extends Controller
             $academicYear = $filterValue[$index];
           }
         }
+      }
+
+      // $scope['code'] null = superadmin (bebas pilih department_code manapun dari filter
+      // client, perilaku lama). Bukan null = admin biasa, paksa ke prodinya sendiri.
+      if ($scope['code'] !== null) {
+        $departementCode = $scope['code'];
       }
 
       // Check if the values are available
