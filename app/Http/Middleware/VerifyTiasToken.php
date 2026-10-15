@@ -73,6 +73,10 @@ class VerifyTiasToken
             'nidn' => $data['nidn'] ?? null,
             'role' => $data['role'] ?? null,
             'nama_lengkap' => $data['nama_lengkap'] ?? null,
+            // department_code & email dipakai utk kunci scope rekap presensi per-prodi
+            // admin (lihat AkademikController@listDosenPertemuan/listPertemuan).
+            'department_code' => $data['department_code'] ?? null,
+            'email' => $data['email'] ?? null,
         ]);
 
         return $next($request);
