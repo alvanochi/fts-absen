@@ -45,6 +45,7 @@ class PembelajaranController extends Controller
             'npm_komti',
             'name_komti',
             'status_kelas',
+            'use_face_recognition',
             'learning_done',
             'token',
             'created_at',
